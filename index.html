@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Choreia 人財</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#faf8f5; --panel:#f5ece5; --panel2:#f1eae2; --card:#ffffff;
+  --ink:#2c2418; --sub:#5a5044; --muted:#8a7e6e;
+  --line:#e8e0d8; --line2:#d4cdc2;
+  --accent:#a0522d; --accent-deep:#7a3d22; --accent-soft:#f3e2d6;
+  --ok:#4a7040; --ok-soft:#e6efe2; --warn:#a8842c; --warn-soft:#f5ecd4;
+  --bad:#a04034; --bad-soft:#f5ded9; --info:#3d5a80; --info-soft:#e2e9f2;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14.5px;line-height:1.7}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.84em}
+a{color:var(--accent-deep)}
+header.app{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 22px 0;max-width:1140px;margin:0 auto}
+.brand{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:1.25rem;letter-spacing:.02em}
+.brand small{color:var(--accent);font-weight:700;margin-left:6px}
+.spacer{flex:1}
+#user-area{display:flex;align-items:center;gap:10px}
+#user-avatar{width:28px;height:28px;border-radius:50%;display:none}
+#user-name{font-size:.85rem;color:var(--sub)}
+nav.tabs{display:flex;gap:4px;max-width:1140px;margin:14px auto 0;padding:0 22px;border-bottom:1.5px solid var(--line);flex-wrap:wrap}
+nav.tabs button{appearance:none;background:none;border:none;cursor:pointer;font-family:inherit;font-size:.92rem;font-weight:700;color:var(--muted);padding:9px 16px 11px;border-bottom:2.5px solid transparent;margin-bottom:-1.5px}
+nav.tabs button:hover{color:var(--sub)}
+nav.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:6px}
+nav.tabs button.on{color:var(--accent-deep);border-bottom-color:var(--accent)}
+main{max-width:1140px;margin:0 auto;padding:20px 22px 80px}
+section.view{display:none}
+section.view.on{display:block}
+h2{font-family:"Zen Kaku Gothic New",sans-serif;font-size:1.1rem;font-weight:700;margin:0 0 4px}
+.viewdesc{color:var(--muted);font-size:.82rem;margin:0 0 16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.kpi .n{font-family:"Zen Kaku Gothic New",sans-serif;font-size:1.7rem;font-weight:900;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:.76rem;color:var(--muted)}
+.kpi.warm .n{color:var(--warn)}
+.kpi.hot .n{color:var(--accent)}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 10px;white-space:nowrap}
+.p-acc{background:var(--accent-soft);color:var(--accent-deep)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-info{background:var(--info-soft);color:var(--info)}
+.p-mut{background:var(--panel2);color:var(--muted)}
+.tbox{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:.87rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--panel);font-size:.75rem;color:var(--sub);white-space:nowrap;font-weight:700}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--panel2)}
+td .sub{display:block;font-size:.76rem;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.bar{display:flex;gap:10px;align-items:center;margin:0 0 12px;flex-wrap:wrap}
+.bar input[type=search]{flex:1;min-width:180px;max-width:320px;font-family:inherit;font-size:.88rem;padding:7px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--card);color:var(--ink)}
+.btn{appearance:none;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:.85rem;background:var(--accent);color:#fff;border-radius:9px;padding:7px 16px}
+.btn.ghost{background:var(--panel);color:var(--accent-deep);border:1px solid var(--line2)}
+.btn.small{font-size:.78rem;padding:4px 12px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible{outline:2px solid var(--accent-deep);outline-offset:2px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(185px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;min-width:185px}
+.col h3{margin:2px 4px 10px;font-size:.8rem;font-weight:700;color:var(--sub);display:flex;justify-content:space-between;align-items:center}
+.col h3 .cnt{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--muted)}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;cursor:pointer}
+.tcard:hover{border-color:var(--accent)}
+.tcard b{font-size:.86rem;display:block}
+.tcard .who{font-size:.76rem;color:var(--sub)}
+.tcard .ids{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--muted);display:block;margin-top:4px}
+.tcard .flag{margin-top:6px}
+.detail{margin-top:20px;background:var(--card);border:1.5px solid var(--accent);border-radius:12px;padding:18px 20px}
+.detail h3{margin:0 0 2px;font-family:"Zen Kaku Gothic New",sans-serif;font-size:1rem}
+.detail .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 22px;margin-top:10px}
+.kv{font-size:.85rem;padding:5px 0;border-bottom:1px dashed var(--line)}
+.kv b{display:block;font-size:.7rem;color:var(--muted);font-weight:700}
+.lock{color:var(--muted)}
+.lock::before{content:"🔒 "}
+.timeline{margin:14px 0 0;padding:0;list-style:none;font-size:.84rem}
+.timeline li{padding:4px 0 4px 18px;position:relative;color:var(--sub)}
+.timeline li::before{content:"";position:absolute;left:4px;top:12px;width:7px;height:7px;border-radius:50%;background:var(--line2)}
+.timeline li.now::before{background:var(--accent)}
+.summarybox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:12px;font-size:.85rem;white-space:pre-wrap;max-height:300px;overflow-y:auto}
+footer{max-width:1140px;margin:0 auto;padding:18px 22px;color:var(--muted);font-size:.76rem;border-top:1px solid var(--line)}
+/* welcome / setup */
+.center{max-width:560px;margin:60px auto;text-align:center;padding:0 22px}
+.center h1{font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;font-size:1.7rem}
+.center p{color:var(--sub)}
+.setupbox{max-width:640px;margin:30px auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 28px}
+.setupbox h2{margin-bottom:10px}
+.drive-list,.folder-list-setup{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;margin:10px 0}
+.drive-item,.folder-item-setup{display:flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:9px;cursor:pointer;background:var(--paper)}
+.drive-item.selected,.folder-item-setup.selected{border-color:var(--accent);background:var(--accent-soft)}
+.spinner{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spinner{animation-duration:2s}}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(44,36,24,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:50}
+.modal-bg.on{display:flex}
+.modal{background:var(--card);border-radius:14px;max-width:640px;width:100%;padding:22px 26px;border:1px solid var(--line)}
+.modal h3{font-family:"Zen Kaku Gothic New",sans-serif;margin:0 0 14px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+.fgrid .full{grid-column:1/-1}
+@media(max-width:560px){.fgrid{grid-template-columns:1fr}}
+label.f{display:block;font-size:.74rem;font-weight:700;color:var(--sub)}
+label.f input,label.f select,label.f textarea{width:100%;font-family:inherit;font-size:.9rem;padding:7px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);color:var(--ink);margin-top:2px}
+label.f textarea{min-height:64px;resize:vertical}
+.modal .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 22px;border-radius:999px;font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:99}
+.toast.show{opacity:1}
+.hint{font-size:.76rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <span class="brand">Choreia<small>人財</small></span>
+  <span class="pill p-acc">職業紹介 優先</span>
+  <span class="spacer"></span>
+  <div id="auth-out"><button class="btn" onclick="handleSignIn()">Googleでログイン</button></div>
+  <div id="user-area" style="display:none"><img id="user-avatar" alt=""><span id="user-name"></span><button class="btn ghost small" onclick="handleSignOut()">ログアウト</button></div>
+</header>
+
+<!-- welcome -->
+<div id="view-welcome" class="center">
+  <h1>Choreia 人財</h1>
+  <p>職業紹介・人材派遣の取引先／案件／候補者／マッチングをひとつの画面で。<br>データは自社のGoogleスプレッドシートに保存されます。</p>
+  <button class="btn" onclick="handleSignIn()">Googleでログイン</button>
+  <p class="hint">組織のGoogleアカウント（@m2-labo.jp 等）でログインしてください。</p>
+</div>
+
+<!-- loading -->
+<div id="view-loading" class="center" style="display:none"><div class="spinner"></div><p>読み込み中…</p></div>
+
+<!-- setup -->
+<div id="view-setup" style="display:none">
+  <div class="setupbox">
+    <h2>初回セットアップ</h2>
+    <p style="font-size:.88rem;color:var(--sub)">データ保存先のスプレッドシートを作成します。保存先の共有ドライブとフォルダを選んでください。（ドメイン: <b id="setup-domain"></b>）</p>
+    <h3 style="font-size:.85rem">1. 共有ドライブ</h3>
+    <div id="setup-drives"></div>
+    <div id="setup-step2" style="display:none">
+      <h3 style="font-size:.85rem">2. フォルダ</h3>
+      <div id="setup-breadcrumb" style="font-size:.8rem;margin-bottom:6px"></div>
+      <div id="setup-folders"></div>
+    </div>
+    <div style="margin-top:16px;text-align:right"><button class="btn" id="setup-confirm-btn" disabled onclick="confirmSetup()">選択してください</button></div>
+  </div>
+</div>
+
+<!-- main -->
+<div id="view-main" style="display:none">
+<nav class="tabs">
+  <button class="on" data-v="match" onclick="switchTab('match')">マッチング</button>
+  <button data-v="clients" onclick="switchTab('clients')">取引先</button>
+  <button data-v="jobs" onclick="switchTab('jobs')">案件</button>
+  <button data-v="cands" onclick="switchTab('cands')">候補者</button>
+  <button data-v="docs" onclick="switchTab('docs')">書類・期限</button>
+</nav>
+<main>
+  <section class="view on" id="v-match">
+    <h2>マッチング</h2>
+    <p class="viewdesc">候補者×案件を1件ずつ管理。面接はカレンダー登録とMeet発行、Geminiのメモ自動取り込みに対応。</p>
+    <div class="kpis" id="match-kpis"></div>
+    <div class="bar"><span class="spacer"></span><button class="btn" onclick="openAppForm()">＋ 提案を登録</button></div>
+    <div class="board" id="board"></div>
+    <div id="app-detail"></div>
+  </section>
+  <section class="view" id="v-clients">
+    <h2>取引先</h2>
+    <p class="viewdesc">受入企業・担当者・ヒアリング記録。</p>
+    <div class="bar"><input type="search" id="q-clients" placeholder="社名・担当者で検索" oninput="renderClients()"><button class="btn" onclick="openClientForm()">＋ 取引先を登録</button></div>
+    <div class="tbox" id="t-clients"></div>
+  </section>
+  <section class="view" id="v-jobs">
+    <h2>案件</h2>
+    <p class="viewdesc">求人・派遣案件。紹介／派遣の区分と在留資格の適合性を確認してから提案します。</p>
+    <div class="bar"><input type="search" id="q-jobs" placeholder="案件名・取引先で検索" oninput="renderJobs()"><button class="btn" onclick="openJobForm()">＋ 案件を登録</button></div>
+    <div class="tbox" id="t-jobs"></div>
+  </section>
+  <section class="view" id="v-cands">
+    <h2>候補者</h2>
+    <p class="viewdesc">候補者台帳。パスポート番号・面談評価は閲覧権限のあるメンバーのみ表示されます。マイナンバーは扱いません。</p>
+    <div class="bar"><input type="search" id="q-cands" placeholder="氏名・資格で検索" oninput="renderCands()"><button class="btn" onclick="openCandForm()">＋ 候補者を登録</button></div>
+    <div class="tbox" id="t-cands"></div>
+    <div id="cand-detail"></div>
+  </section>
+  <section class="view" id="v-docs">
+    <h2>書類・期限</h2>
+    <p class="viewdesc">Drive上の書類リンクと有効期限。期限が近い順に表示します。</p>
+    <div class="bar"><span class="spacer"></span><button class="btn" onclick="openDocForm()">＋ 書類を登録</button></div>
+    <div class="tbox" id="t-docs"></div>
+  </section>
+</main>
+</div>
+
+<footer>Choreia 人財 ─ データは自社スプレッドシートに保存。マイナンバー非対応（扱わない設計）。M2Labo 人財部</footer>
+
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGIS()"></script>
+<script>
+// ==================== Config ====================
+var CLIENT_ID='595564106580-hsrunbvfacmr23d2jopl462taqilip75.apps.googleusercontent.com';
+var SCOPES='https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar';
+var CONFIG_FILENAME='choreia-jinzai-config.json';
+var TOKEN_KEY='choreia_jinzai_token';
+var CONFIG_CACHE_KEY='choreia_jinzai_config_cache';
+var BLOCKED_DOMAINS=['gmail.com','googlemail.com','yahoo.co.jp','yahoo.com','hotmail.com','outlook.com','outlook.jp','icloud.com','me.com','mac.com','aol.com','protonmail.com','zoho.com','live.com','live.jp','msn.com','nifty.com','biglobe.ne.jp','ocn.ne.jp'];
+
+var CLIENT_FIELDS=['id','company','kana','contact','contactTitle','tel','email','address','needs','status','memo','createdAt','updatedAt'];
+var JOB_FIELDS=['id','clientId','title','type','visa','headcount','location','salary','conditions','status','feeNote','memo','createdAt','updatedAt'];
+var CAND_FIELDS=['id','name','kana','nameEn','partner','birth','nationality','phone','email','jobPref','locationPref','skills','jlpt','exam','visaStage','status','consent','memo','createdAt','updatedAt'];
+var APP_FIELDS=['id','candidateId','jobId','stage','proposedAt','interviewAt','calEventId','meetLink','interviewSummary','offerAt','joinedAt','feeStatus','history','memo','updatedAt'];
+var DOC_FIELDS=['id','target','name','url','expiry','memo','updatedAt'];
+var SENS_FIELDS=['candidateId','passport','evaluation','note','updatedAt'];
+
+var SHEET_DEFS=[
+  {title:'取引先',fields:CLIENT_FIELDS,headers:['ID','会社名','カナ','担当者','役職','TEL','メール','住所','ニーズ','状況','メモ','登録日','更新日']},
+  {title:'案件',fields:JOB_FIELDS,headers:['ID','取引先ID','案件名','区分','在留資格','人数','勤務地','給与','条件','状況','手数料メモ','メモ','登録日','更新日']},
+  {title:'候補者',fields:CAND_FIELDS,headers:['ID','氏名','カナ','氏名(原文)','パートナー','生年月','国籍','電話','メール','希望職種','希望勤務地','スキル・職歴','日本語','技能試験','在留資格進行','状況','応募同意','メモ','登録日','更新日']},
+  {title:'選考',fields:APP_FIELDS,headers:['ID','候補者ID','案件ID','段階','提案日','面接日時','カレンダーID','Meetリンク','面接要約','内定日','入社日','手数料','履歴','メモ','更新日']},
+  {title:'書類',fields:DOC_FIELDS,headers:['ID','対象','書類名','URL','期限','メモ','更新日']},
+  {title:'機微',fields:SENS_FIELDS,headers:['候補者ID','パスポート番号','面談評価','機微メモ','更新日']}
+];
+var STAGES=['提案','書類選考','面接','内定','入社・成約'];
+var CLIENT_STATUSES=['リード','商談中','提案準備','成約','保留','休眠'];
+var JOB_STATUSES=['募集中','提案中','充足','保留','終了'];
+var VISA_STAGES=['未着手','COE準備中','COE申請中','COE取得','査証申請中','入国済'];
+var CAND_STATUSES=['登録','提案中','選考中','内定','入社','見送り'];
+
+// ==================== State ====================
+var tokenClient=null,accessToken=null;
+var currentUser={email:'',name:'',domain:'',photo:''};
+var orgConfig=null;
+var clients=[],jobs=[],cands=[],apps=[],docs=[],sens=[];
+var setupDriveId='',setupDriveName='',setupFolderId='',setupFolderName='',setupFolderPath=[];
+var currentAppId='',currentCandId='';
+
+// ==================== Utility ====================
+function escapeHtml(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function escapeAttr(s){return String(s==null?'':s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3200);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function nowStr(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function fmtDT(s){if(!s)return '';var d=new Date(s);if(isNaN(d))return s;var p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'/'+p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function daysLeft(dateStr){if(!dateStr)return null;var d=new Date(dateStr+'T00:00:00');if(isNaN(d))return null;return Math.ceil((d-new Date())/86400000);}
+function nextId(prefix,arr){var mx=0;arr.forEach(function(x){var m=String(x.id||'').match(new RegExp('^'+prefix+'-(\\d+)$'));if(m)mx=Math.max(mx,parseInt(m[1],10));});return prefix+'-'+String(mx+1).padStart(5,'0');}
+function byId(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return arr[i];return null;}
+function idxOf(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return i;return -1;}
+function pushHistory(app,text){var h=[];try{h=JSON.parse(app.history||'[]');}catch(e){}h.push({t:nowStr(),e:text});app.history=JSON.stringify(h);}
+function getHistory(app){try{return JSON.parse(app.history||'[]');}catch(e){return [];}}
+function canViewSensitive(){if(!orgConfig)return false;var v=orgConfig.sensitiveViewers||orgConfig.admins||[orgConfig.admin];return v.indexOf(currentUser.email)!==-1;}
+
+var _tokenRefreshResolver=null,_pendingTokenRefresh=null;
+function refreshAccessToken(){
+  if(_pendingTokenRefresh)return _pendingTokenRefresh;
+  if(!tokenClient)return Promise.reject(new Error('Auth not initialized'));
+  _pendingTokenRefresh=new Promise(function(resolve,reject){
+    _tokenRefreshResolver={resolve:resolve,reject:reject};
+    try{tokenClient.requestAccessToken({prompt:''});}catch(e){_tokenRefreshResolver=null;reject(e);}
+  });
+  _pendingTokenRefresh.catch(function(){}).then(function(){_pendingTokenRefresh=null;});
+  return _pendingTokenRefresh;
+}
+async function authFetch(url,opts){
+  opts=opts||{};opts.headers=opts.headers||{};
+  opts.headers['Authorization']='Bearer '+accessToken;
+  var r=await fetch(url,opts);
+  if(r.status===401){
+    try{await refreshAccessToken();}catch(e){return r;}
+    opts.headers['Authorization']='Bearer '+accessToken;
+    r=await fetch(url,opts);
+  }
+  return r;
+}
+async function apiFetch(url,opts){
+  var r=await authFetch(url,opts);
+  if(!r.ok){var txt='';try{txt=JSON.stringify(await r.json())}catch(e){}throw new Error('API '+r.status+' '+txt);}
+  return r.json();
+}
+
+// ==================== Auth ====================
+function initGIS(){
+  tokenClient=google.accounts.oauth2.initTokenClient({client_id:CLIENT_ID,scope:SCOPES,callback:onTokenResponse,prompt:''});
+  var saved=localStorage.getItem(TOKEN_KEY);
+  if(saved){accessToken=saved;restoreSession();}
+}
+async function restoreSession(){
+  showView('loading');
+  try{
+    var about=await apiFetch('https://www.googleapis.com/drive/v3/about?fields=user');
+    setUser(about.user);
+    if(BLOCKED_DOMAINS.indexOf(currentUser.domain)!==-1){accessToken=null;localStorage.removeItem(TOKEN_KEY);showView('welcome');return;}
+    showLoggedIn();await findConfig();
+  }catch(e){
+    accessToken=null;localStorage.removeItem(TOKEN_KEY);
+    try{tokenClient.requestAccessToken({prompt:''});}catch(e2){showView('welcome');}
+  }
+}
+async function onTokenResponse(resp){
+  if(_tokenRefreshResolver){
+    var r=_tokenRefreshResolver;_tokenRefreshResolver=null;
+    if(resp.error){r.reject(new Error(resp.error));return;}
+    accessToken=resp.access_token;localStorage.setItem(TOKEN_KEY,accessToken);
+    r.resolve(accessToken);return;
+  }
+  if(resp.error){showToast('ログインに失敗しました');return;}
+  accessToken=resp.access_token;localStorage.setItem(TOKEN_KEY,accessToken);
+  showView('loading');
+  try{
+    var about=await apiFetch('https://www.googleapis.com/drive/v3/about?fields=user');
+    setUser(about.user);
+    if(BLOCKED_DOMAINS.indexOf(currentUser.domain)!==-1){showToast('組織アカウントでログインしてください');handleSignOut();return;}
+    showLoggedIn();await findConfig();
+  }catch(e){showToast('ログインに問題がありました');showView('welcome');}
+}
+function setUser(u){currentUser.email=u.emailAddress||'';currentUser.name=u.displayName||currentUser.email;currentUser.domain=currentUser.email.split('@')[1]||'';currentUser.photo=u.photoLink||'';}
+function showLoggedIn(){
+  document.getElementById('user-name').textContent=currentUser.name;
+  var av=document.getElementById('user-avatar');
+  if(currentUser.photo){av.src=currentUser.photo;av.style.display='';}
+  document.getElementById('auth-out').style.display='none';
+  document.getElementById('user-area').style.display='flex';
+}
+function handleSignIn(){if(!tokenClient){showToast('準備中です。少し待ってからもう一度押してください');return;}tokenClient.requestAccessToken({prompt:'consent'});}
+function handleSignOut(){
+  if(accessToken)google.accounts.oauth2.revoke(accessToken);
+  accessToken=null;localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(CONFIG_CACHE_KEY);
+  orgConfig=null;clients=[];jobs=[];cands=[];apps=[];docs=[];sens=[];
+  document.getElementById('auth-out').style.display='';
+  document.getElementById('user-area').style.display='none';
+  showView('welcome');
+}
+
+// ==================== Views ====================
+function showView(name){['welcome','loading','setup','main'].forEach(function(v){var el=document.getElementById('view-'+v);if(el)el.style.display=(v===name)?'':'none';});}
+var currentTab='match';
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('nav.tabs button').forEach(function(b){b.classList.toggle('on',b.dataset.v===tab);});
+  ['match','clients','jobs','cands','docs'].forEach(function(t){document.getElementById('v-'+t).classList.toggle('on',t===tab);});
+  if(tab==='match')renderBoard();
+  if(tab==='clients')renderClients();
+  if(tab==='jobs')renderJobs();
+  if(tab==='cands')renderCands();
+  if(tab==='docs')renderDocs();
+}
+
+// ==================== Config / Setup ====================
+function loadCachedConfig(){try{var raw=localStorage.getItem(CONFIG_CACHE_KEY);if(!raw)return null;var c=JSON.parse(raw);return (c&&c.domain===currentUser.domain)?c:null;}catch(e){return null;}}
+function saveCachedConfig(){try{localStorage.setItem(CONFIG_CACHE_KEY,JSON.stringify(orgConfig));}catch(e){}}
+async function findConfig(){
+  var cached=loadCachedConfig();
+  if(cached){orgConfig=cached;loadAllData().then(showMainView);refreshConfigFromDrive();return;}
+  try{
+    var data=await apiFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("name='"+CONFIG_FILENAME+"' and trashed=false")+'&corpora=allDrives&includeItemsFromAllDrives=true&supportsAllDrives=true&fields=files(id)');
+    var files=data.files||[];
+    if(files.length){
+      var fetched=await Promise.all(files.map(function(f){
+        return apiFetch('https://www.googleapis.com/drive/v3/files/'+f.id+'?alt=media&supportsAllDrives=true').then(function(c){return {file:f,config:c};},function(){return null;});
+      }));
+      for(var i=0;i<fetched.length;i++){
+        var r=fetched[i];if(!r||!r.config)continue;
+        if(r.config.domain===currentUser.domain){
+          orgConfig=r.config;orgConfig.configFileId=r.file.id;saveCachedConfig();
+          await loadAllData();showMainView();return;
+        }
+      }
+    }
+  }catch(e){console.error('findConfig',e);}
+  showSetup();
+}
+async function refreshConfigFromDrive(){
+  try{
+    var data=await apiFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("name='"+CONFIG_FILENAME+"' and trashed=false")+'&corpora=allDrives&includeItemsFromAllDrives=true&supportsAllDrives=true&fields=files(id)');
+    for(var i=0;i<(data.files||[]).length;i++){
+      try{var c=await apiFetch('https://www.googleapis.com/drive/v3/files/'+data.files[i].id+'?alt=media&supportsAllDrives=true');
+        if(c.domain===currentUser.domain){orgConfig=c;orgConfig.configFileId=data.files[i].id;saveCachedConfig();return;}
+      }catch(e){}
+    }
+  }catch(e){}
+}
+async function saveConfig(){
+  try{
+    var cfg=Object.assign({},orgConfig);delete cfg.configFileId;
+    var r=await authFetch('https://www.googleapis.com/upload/drive/v3/files/'+orgConfig.configFileId+'?uploadType=media&supportsAllDrives=true',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg,null,2)});
+    if(!r.ok)throw new Error('save failed');
+    saveCachedConfig();
+  }catch(e){showToast('設定の保存に失敗しました');console.error(e);}
+}
+
+function showSetup(){showView('setup');document.getElementById('setup-domain').textContent=currentUser.domain;document.getElementById('setup-step2').style.display='none';loadSharedDrives();}
+async function loadSharedDrives(){
+  var c=document.getElementById('setup-drives');c.innerHTML='<div class="spinner"></div>';
+  try{var d=await apiFetch('https://www.googleapis.com/drive/v3/drives?pageSize=100');var dr=d.drives||[];
+    if(!dr.length){c.innerHTML='<p class="hint">共有ドライブがありません。管理者に作成を依頼してください。</p>';return;}
+    var h='<div class="drive-list">';
+    dr.forEach(function(x){h+='<div class="drive-item" data-id="'+x.id+'" data-name="'+escapeAttr(x.name)+'" onclick="selectDrive(this)">💾 '+escapeHtml(x.name)+'</div>';});
+    c.innerHTML=h+'</div>';
+  }catch(e){c.innerHTML='<p class="hint">読み込めませんでした</p>';}
+}
+function selectDrive(el){
+  document.querySelectorAll('.drive-item').forEach(function(x){x.classList.remove('selected')});
+  el.classList.add('selected');
+  setupDriveId=el.getAttribute('data-id');setupDriveName=el.getAttribute('data-name');
+  setupFolderId=setupDriveId;setupFolderName=setupDriveName;
+  setupFolderPath=[{id:setupDriveId,name:setupDriveName}];
+  document.getElementById('setup-step2').style.display='';
+  loadSetupFolders(setupDriveId);updateSetupBtn();
+}
+async function loadSetupFolders(pid){
+  var c=document.getElementById('setup-folders');c.innerHTML='<div class="spinner"></div>';updateSetupBreadcrumb();
+  try{var d=await apiFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent("'"+pid+"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false")+'&driveId='+setupDriveId+'&corpora=drive&includeItemsFromAllDrives=true&supportsAllDrives=true&fields=files(id,name)&orderBy=name&pageSize=100');
+    var f=d.files||[];
+    if(!f.length){c.innerHTML='<p class="hint" style="padding:8px">サブフォルダなし ─ このフォルダに保存できます</p>';return;}
+    var h='<div class="folder-list-setup">';
+    f.forEach(function(x){h+='<div class="folder-item-setup" data-id="'+x.id+'" data-name="'+escapeAttr(x.name)+'" onclick="selectSetupFolder(this)">📁 <span style="flex:1">'+escapeHtml(x.name)+'</span><span style="cursor:pointer" onclick="event.stopPropagation();openSetupFolder(\''+x.id+'\',\''+escapeAttr(x.name)+'\')">▶</span></div>';});
+    c.innerHTML=h+'</div>';
+  }catch(e){c.innerHTML='<p class="hint">読み込めませんでした</p>';}
+}
+function selectSetupFolder(el){document.querySelectorAll('.folder-item-setup').forEach(function(x){x.classList.remove('selected')});el.classList.add('selected');setupFolderId=el.getAttribute('data-id');setupFolderName=el.getAttribute('data-name');updateSetupBtn();}
+function openSetupFolder(id,name){setupFolderPath.push({id:id,name:name});setupFolderId=id;setupFolderName=name;loadSetupFolders(id);updateSetupBtn();}
+function navigateSetupTo(i){setupFolderPath=setupFolderPath.slice(0,i+1);var t=setupFolderPath[i];setupFolderId=t.id;setupFolderName=t.name;loadSetupFolders(t.id);updateSetupBtn();}
+function updateSetupBreadcrumb(){var el=document.getElementById('setup-breadcrumb'),h='';setupFolderPath.forEach(function(p,i){if(i>0)h+=' / ';if(i<setupFolderPath.length-1)h+='<a onclick="navigateSetupTo('+i+')" style="cursor:pointer">'+escapeHtml(p.name)+'</a>';else h+='<strong>'+escapeHtml(p.name)+'</strong>';});el.innerHTML=h;}
+function updateSetupBtn(){var b=document.getElementById('setup-confirm-btn');b.disabled=!setupFolderId;b.textContent=setupFolderName?'「'+setupFolderName+'」に決定':'選択してください';}
+
+async function confirmSetup(){
+  var b=document.getElementById('setup-confirm-btn');b.disabled=true;b.textContent='設定中…';
+  try{
+    var ssBody={properties:{title:'Choreia 人財 - '+currentUser.domain},sheets:SHEET_DEFS.map(function(s){return {properties:{title:s.title,gridProperties:{frozenRowCount:1}}};})};
+    var ss=await apiFetch('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(ssBody)});
+    var ssId=ss.spreadsheetId;
+    var fileInfo=await apiFetch('https://www.googleapis.com/drive/v3/files/'+ssId+'?fields=parents&supportsAllDrives=true');
+    await authFetch('https://www.googleapis.com/drive/v3/files/'+ssId+'?addParents='+setupFolderId+'&removeParents='+(fileInfo.parents||[]).join(',')+'&supportsAllDrives=true',{method:'PATCH',headers:{'Content-Type':'application/json'},body:'{}'});
+    var headerData=SHEET_DEFS.map(function(s){return {range:s.title+'!A1',values:[s.headers]};});
+    await apiFetch('https://sheets.googleapis.com/v4/spreadsheets/'+ssId+'/values:batchUpdate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({valueInputOption:'RAW',data:headerData})});
+    var cfg={domain:currentUser.domain,admin:currentUser.email,admins:[currentUser.email],sensitiveViewers:[currentUser.email],adminName:currentUser.name,folderId:setupFolderId,folderName:setupFolderName,driveId:setupDriveId,driveName:setupDriveName,spreadsheetId:ssId,createdAt:new Date().toISOString()};
+    var m=JSON.stringify({name:CONFIG_FILENAME,parents:[setupFolderId],mimeType:'application/json'});
+    var f=new FormData();f.append('metadata',new Blob([m],{type:'application/json'}));f.append('file',new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'}));
+    var r=await authFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true',{method:'POST',body:f});
+    if(!r.ok)throw new Error('config save failed');
+    var fl=await r.json();
+    orgConfig=cfg;orgConfig.configFileId=fl.id;saveCachedConfig();
+    showToast('セットアップ完了！');
+    await loadAllData();showMainView();
+  }catch(e){showToast('セットアップに失敗しました: '+e.message);b.disabled=false;updateSetupBtn();console.error(e);}
+}
+
+// ==================== Sheets I/O ====================
+function getSheetId(){return orgConfig?orgConfig.spreadsheetId:'';}
+function parseRows(rows,fields){return (rows||[]).map(function(row){var o={};fields.forEach(function(f,i){o[f]=row[i]||'';});return o;}).filter(function(o){return String(o[fields[0]]||'').trim();});}
+function toRow(obj,fields){return fields.map(function(f){return obj[f]===undefined?'':String(obj[f]);});}
+function colLetter(n){var s='';while(n>0){var m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;}
+async function loadAllData(){
+  var id=getSheetId();if(!id)return;
+  var ranges=SHEET_DEFS.map(function(s){return 'ranges='+encodeURIComponent(s.title+'!A2:'+colLetter(s.fields.length)+'5000');}).join('&');
+  var data=await apiFetch('https://sheets.googleapis.com/v4/spreadsheets/'+id+'/values:batchGet?'+ranges);
+  var vr=data.valueRanges||[];
+  clients=parseRows(vr[0]&&vr[0].values,CLIENT_FIELDS);
+  jobs=parseRows(vr[1]&&vr[1].values,JOB_FIELDS);
+  cands=parseRows(vr[2]&&vr[2].values,CAND_FIELDS);
+  apps=parseRows(vr[3]&&vr[3].values,APP_FIELDS);
+  docs=parseRows(vr[4]&&vr[4].values,DOC_FIELDS);
+  sens=parseRows(vr[5]&&vr[5].values,SENS_FIELDS);
+}
+async function appendRow(sheet,obj,fields){
+  await apiFetch('https://sheets.googleapis.com/v4/spreadsheets/'+getSheetId()+'/values/'+encodeURIComponent(sheet+'!A:ZZ')+':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:[toRow(obj,fields)]})});
+}
+async function updateRowByIndex(sheet,rowIndex,obj,fields){
+  var range=sheet+'!A'+(rowIndex+2)+':'+colLetter(fields.length)+(rowIndex+2);
+  await apiFetch('https://sheets.googleapis.com/v4/spreadsheets/'+getSheetId()+'/values/'+encodeURIComponent(range)+'?valueInputOption=RAW',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:[toRow(obj,fields)]})});
+}
+async function saveEntity(sheet,arr,obj,fields){
+  var i=idxOf(arr,obj.id!==undefined?obj.id:obj.candidateId);
+  if(sheet==='機微'){i=-1;for(var k=0;k<arr.length;k++)if(arr[k].candidateId===obj.candidateId)i=k;}
+  obj.updatedAt=nowStr();
+  if(i===-1){arr.push(obj);await appendRow(sheet,obj,fields);}
+  else{arr[i]=obj;await updateRowByIndex(sheet,i,obj,fields);}
+}
+
+function showMainView(){showView('main');switchTab(currentTab||'match');}
+
+// ==================== Modal helpers ====================
+function openModal(html){document.getElementById('modal').innerHTML=html;document.getElementById('modal-bg').classList.add('on');}
+function closeModal(){document.getElementById('modal-bg').classList.remove('on');}
+function fv(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+function inp(id,label,val,type,full){return '<label class="f'+(full?' full':'')+'" style="'+(full?'grid-column:1/-1':'')+'">'+label+'<input id="'+id+'" type="'+(type||'text')+'" value="'+escapeAttr(val||'')+'"></label>';}
+function sel(id,label,val,opts,full){var h='<label class="f" style="'+(full?'grid-column:1/-1':'')+'">'+label+'<select id="'+id+'">';opts.forEach(function(o){h+='<option'+(o===val?' selected':'')+'>'+escapeHtml(o)+'</option>';});return h+'</select></label>';}
+function ta(id,label,val){return '<label class="f" style="grid-column:1/-1">'+label+'<textarea id="'+id+'">'+escapeHtml(val||'')+'</textarea></label>';}
+
+// ==================== 取引先 ====================
+function clientStatusPill(s){var m={'商談中':'p-acc','提案準備':'p-info','成約':'p-ok','保留':'p-mut','休眠':'p-mut','リード':'p-warn'};return '<span class="pill '+(m[s]||'p-mut')+'">'+escapeHtml(s||'─')+'</span>';}
+function renderClients(){
+  var q=(fv('q-clients')||'').toLowerCase();
+  var rows=clients.filter(function(c){return !q||((c.company||'')+(c.contact||'')+(c.kana||'')).toLowerCase().indexOf(q)!==-1;});
+  var h='<table><thead><tr><th>ID</th><th>取引先</th><th>担当者</th><th>状況</th><th>ニーズ</th><th>更新</th></tr></thead><tbody>';
+  rows.forEach(function(c){
+    h+='<tr onclick="openClientForm(\''+c.id+'\')"><td class="mono">'+escapeHtml(c.id)+'</td><td>'+escapeHtml(c.company)+'<span class="sub">'+escapeHtml(c.address||'')+'</span></td><td>'+escapeHtml(c.contact||'')+(c.contactTitle?'<span class="sub">'+escapeHtml(c.contactTitle)+'</span>':'')+'</td><td>'+clientStatusPill(c.status)+'</td><td>'+escapeHtml(c.needs||'')+'</td><td class="num">'+escapeHtml((c.updatedAt||'').slice(0,10))+'</td></tr>';
+  });
+  if(!rows.length)h+='<tr><td colspan="6" style="color:var(--muted)">まだ登録がありません。「＋ 取引先を登録」から始めてください。</td></tr>';
+  document.getElementById('t-clients').innerHTML=h+'</tbody></table>';
+}
+function openClientForm(id){
+  var c=id?byId(clients,id):{};
+  openModal('<h3>'+(id?escapeHtml(c.company)+' を編集':'取引先を登録')+'</h3><div class="fgrid">'+
+    inp('f-company','会社名',c.company)+inp('f-kana','カナ',c.kana)+
+    inp('f-contact','担当者',c.contact)+inp('f-ctitle','役職',c.contactTitle)+
+    inp('f-tel','TEL',c.tel)+inp('f-email','メール',c.email)+
+    inp('f-address','住所',c.address)+sel('f-status','状況',c.status||'リード',CLIENT_STATUSES)+
+    ta('f-needs','ニーズ・ヒアリング記録',c.needs)+ta('f-memo','メモ',c.memo)+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveClient(\''+(id||'')+'\')">保存</button></div>');
+}
+async function saveClient(id){
+  if(!fv('f-company')){showToast('会社名は必須です');return;}
+  var c=id?Object.assign({},byId(clients,id)):{id:nextId('CL',clients),createdAt:todayStr()};
+  c.company=fv('f-company');c.kana=fv('f-kana');c.contact=fv('f-contact');c.contactTitle=fv('f-ctitle');
+  c.tel=fv('f-tel');c.email=fv('f-email');c.address=fv('f-address');c.status=fv('f-status');
+  c.needs=fv('f-needs');c.memo=fv('f-memo');
+  try{await saveEntity('取引先',clients,c,CLIENT_FIELDS);closeModal();renderClients();showToast('保存しました');}
+  catch(e){showToast('保存に失敗しました');console.error(e);}
+}
+
+// ==================== 案件 ====================
+function jobStatusPill(s){var m={'募集中':'p-ok','提案中':'p-acc','充足':'p-info','保留':'p-mut','終了':'p-mut'};return '<span class="pill '+(m[s]||'p-mut')+'">'+escapeHtml(s||'─')+'</span>';}
+function renderJobs(){
+  var q=(fv('q-jobs')||'').toLowerCase();
+  var rows=jobs.filter(function(j){var c=byId(clients,j.clientId);return !q||((j.title||'')+(c?c.company:'')).toLowerCase().indexOf(q)!==-1;});
+  var h='<table><thead><tr><th>ID</th><th>案件</th><th>区分</th><th>在留資格</th><th>人数</th><th>状況</th><th>提案中</th></tr></thead><tbody>';
+  rows.forEach(function(j){
+    var c=byId(clients,j.clientId);
+    var n=apps.filter(function(a){return a.jobId===j.id&&STAGES.indexOf(a.stage)!==-1;}).length;
+    h+='<tr onclick="openJobForm(\''+j.id+'\')"><td class="mono">'+escapeHtml(j.id)+'</td><td>'+escapeHtml(j.title)+'<span class="sub">'+escapeHtml(c?c.company:j.clientId)+(j.location?'／'+escapeHtml(j.location):'')+'</span></td><td><span class="pill '+(j.type==='派遣'?'p-mut':'p-acc')+'">'+escapeHtml(j.type||'紹介')+'</span></td><td>'+escapeHtml(j.visa||'')+'</td><td class="num">'+escapeHtml(j.headcount||'')+'</td><td>'+jobStatusPill(j.status)+'</td><td class="num">'+n+'件</td></tr>';
+  });
+  if(!rows.length)h+='<tr><td colspan="7" style="color:var(--muted)">まだ案件がありません。</td></tr>';
+  document.getElementById('t-jobs').innerHTML=h+'</tbody></table>';
+}
+function openJobForm(id){
+  var j=id?byId(jobs,id):{};
+  var clientOpts=clients.map(function(c){return c.id+'　'+c.company;});
+  var cur=j.clientId?(j.clientId+'　'+(byId(clients,j.clientId)||{}).company):'';
+  openModal('<h3>'+(id?'案件を編集':'案件を登録')+'</h3><div class="fgrid">'+
+    sel('f-client','取引先',cur,clientOpts,1)+
+    inp('f-title','案件名',j.title)+sel('f-type','区分',j.type||'紹介',['紹介','派遣'])+
+    sel('f-visa','在留資格',j.visa||'SSW農業',['SSW農業','SSW他分野','技人国','不問','その他'])+inp('f-head','人数',j.headcount,'number')+
+    inp('f-location','勤務地',j.location)+inp('f-salary','給与',j.salary)+
+    sel('f-status','状況',j.status||'募集中',JOB_STATUSES)+inp('f-fee','手数料メモ',j.feeNote)+
+    ta('f-cond','条件（勤務時間・休日・住居等）',j.conditions)+ta('f-memo','メモ',j.memo)+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveJob(\''+(id||'')+'\')">保存</button></div>');
+}
+async function saveJob(id){
+  if(!fv('f-title')){showToast('案件名は必須です');return;}
+  var j=id?Object.assign({},byId(jobs,id)):{id:nextId('JOB',jobs),createdAt:todayStr()};
+  j.clientId=(fv('f-client').split('　')[0]||'').trim();
+  j.title=fv('f-title');j.type=fv('f-type');j.visa=fv('f-visa');j.headcount=fv('f-head');
+  j.location=fv('f-location');j.salary=fv('f-salary');j.status=fv('f-status');j.feeNote=fv('f-fee');
+  j.conditions=fv('f-cond');j.memo=fv('f-memo');
+  try{await saveEntity('案件',jobs,j,JOB_FIELDS);closeModal();renderJobs();showToast('保存しました');}
+  catch(e){showToast('保存に失敗しました');console.error(e);}
+}
+
+// ==================== 候補者 ====================
+function visaPill(s){var m={'未着手':'p-mut','COE準備中':'p-warn','COE申請中':'p-warn','COE取得':'p-ok','査証申請中':'p-info','入国済':'p-ok'};return '<span class="pill '+(m[s]||'p-mut')+'">'+escapeHtml(s||'未着手')+'</span>';}
+function renderCands(){
+  var q=(fv('q-cands')||'').toLowerCase();
+  var rows=cands.filter(function(c){return !q||((c.name||'')+(c.kana||'')+(c.nameEn||'')+(c.skills||'')+(c.exam||'')).toLowerCase().indexOf(q)!==-1;});
+  var h='<table><thead><tr><th>ID</th><th>氏名</th><th>資格・試験</th><th>日本語</th><th>在留資格</th><th>状況</th></tr></thead><tbody>';
+  rows.forEach(function(c){
+    h+='<tr onclick="showCandDetail(\''+c.id+'\')"><td class="mono">'+escapeHtml(c.id)+'</td><td>'+escapeHtml(c.name)+'<span class="sub">'+escapeHtml(c.kana||'')+(c.partner?'／'+escapeHtml(c.partner):'')+'</span></td><td>'+escapeHtml(c.exam||'')+'</td><td>'+escapeHtml(c.jlpt||'')+'</td><td>'+visaPill(c.visaStage)+'</td><td><span class="pill p-info">'+escapeHtml(c.status||'登録')+'</span></td></tr>';
+  });
+  if(!rows.length)h+='<tr><td colspan="6" style="color:var(--muted)">まだ候補者がいません。</td></tr>';
+  document.getElementById('t-cands').innerHTML=h+'</tbody></table>';
+}
+function sensFor(candId){for(var i=0;i<sens.length;i++)if(sens[i].candidateId===candId)return sens[i];return null;}
+function showCandDetail(id){
+  currentCandId=id;
+  var c=byId(cands,id);if(!c)return;
+  var s=sensFor(id),canSee=canViewSensitive();
+  var lock='<span class="lock">閲覧には権限が必要です</span>';
+  var h='<div class="detail"><h3>'+escapeHtml(c.id)+' ─ '+escapeHtml(c.name)+'</h3>'+visaPill(c.visaStage)+' <span class="pill p-info">'+escapeHtml(c.status||'登録')+'</span>'+
+    '<div class="grid">'+
+    '<div class="kv"><b>氏名（原文）</b>'+escapeHtml(c.nameEn||'─')+'</div>'+
+    '<div class="kv"><b>カナ</b>'+escapeHtml(c.kana||'─')+'</div>'+
+    '<div class="kv"><b>国籍／生年月</b>'+escapeHtml(c.nationality||'─')+'／'+escapeHtml(c.birth||'─')+'</div>'+
+    '<div class="kv"><b>パートナー</b>'+escapeHtml(c.partner||'─')+'</div>'+
+    '<div class="kv"><b>希望職種・勤務地</b>'+escapeHtml(c.jobPref||'─')+'・'+escapeHtml(c.locationPref||'─')+'</div>'+
+    '<div class="kv"><b>スキル・職歴</b>'+escapeHtml(c.skills||'─')+'</div>'+
+    '<div class="kv"><b>日本語／技能試験</b>'+escapeHtml(c.jlpt||'─')+'／'+escapeHtml(c.exam||'─')+'</div>'+
+    '<div class="kv"><b>応募同意</b>'+escapeHtml(c.consent||'未')+'</div>'+
+    '<div class="kv"><b>パスポート番号</b>'+(canSee?escapeHtml((s&&s.passport)||'未登録'):lock)+'</div>'+
+    '<div class="kv"><b>面談評価</b>'+(canSee?escapeHtml((s&&s.evaluation)||'未登録'):lock)+'</div>'+
+    '</div>'+
+    '<p class="hint" style="margin-top:10px">🔒は機微情報（設定の sensitiveViewers で制御）。マイナンバーはこのシステムでは扱いません。</p>'+
+    '<div class="actions" style="display:flex;gap:10px;margin-top:10px"><button class="btn ghost small" onclick="openCandForm(\''+id+'\')">編集</button>'+(canSee?'<button class="btn ghost small" onclick="openSensForm(\''+id+'\')">機微情報を編集</button>':'')+'</div></div>';
+  document.getElementById('cand-detail').innerHTML=h;
+}
+function openCandForm(id){
+  var c=id?byId(cands,id):{};
+  openModal('<h3>'+(id?escapeHtml(c.name)+' を編集':'候補者を登録')+'</h3><div class="fgrid">'+
+    inp('f-name','氏名（日本語表記）',c.name)+inp('f-kana','カナ',c.kana)+
+    inp('f-nameEn','氏名（原文・パスポート表記）',c.nameEn)+inp('f-partner','パートナー（Jaceex等）',c.partner)+
+    inp('f-birth','生年月（YYYY-MM）',c.birth)+inp('f-nat','国籍',c.nationality)+
+    inp('f-phone','電話',c.phone)+inp('f-email','メール',c.email)+
+    inp('f-jobPref','希望職種',c.jobPref)+inp('f-locPref','希望勤務地',c.locationPref)+
+    inp('f-jlpt','日本語（JLPT等）',c.jlpt)+inp('f-exam','技能試験',c.exam)+
+    sel('f-visaStage','在留資格の進行',c.visaStage||'未着手',VISA_STAGES)+sel('f-cstatus','状況',c.status||'登録',CAND_STATUSES)+
+    sel('f-consent','応募同意',c.consent||'未',['未','取得済'])+
+    ta('f-skills','スキル・職歴',c.skills)+ta('f-memo','メモ（機微情報は書かない）',c.memo)+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveCand(\''+(id||'')+'\')">保存</button></div>');
+}
+async function saveCand(id){
+  if(!fv('f-name')){showToast('氏名は必須です');return;}
+  var c=id?Object.assign({},byId(cands,id)):{id:nextId('CAN',cands),createdAt:todayStr()};
+  c.name=fv('f-name');c.kana=fv('f-kana');c.nameEn=fv('f-nameEn');c.partner=fv('f-partner');
+  c.birth=fv('f-birth');c.nationality=fv('f-nat');c.phone=fv('f-phone');c.email=fv('f-email');
+  c.jobPref=fv('f-jobPref');c.locationPref=fv('f-locPref');c.jlpt=fv('f-jlpt');c.exam=fv('f-exam');
+  c.visaStage=fv('f-visaStage');c.status=fv('f-cstatus');c.consent=fv('f-consent');
+  c.skills=fv('f-skills');c.memo=fv('f-memo');
+  try{await saveEntity('候補者',cands,c,CAND_FIELDS);closeModal();renderCands();if(id)showCandDetail(id);showToast('保存しました');}
+  catch(e){showToast('保存に失敗しました');console.error(e);}
+}
+function openSensForm(candId){
+  var s=sensFor(candId)||{candidateId:candId};
+  openModal('<h3>機微情報（'+escapeHtml(candId)+'）</h3><p class="hint">このシートは閲覧権限のあるメンバーのみ表示・編集できます。</p><div class="fgrid">'+
+    inp('f-passport','パスポート番号',s.passport,'text',1)+
+    ta('f-eval','面談評価',s.evaluation)+ta('f-snote','機微メモ',s.note)+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveSens(\''+candId+'\')">保存</button></div>');
+}
+async function saveSens(candId){
+  var s=sensFor(candId)||{candidateId:candId};
+  s.passport=fv('f-passport');s.evaluation=fv('f-eval');s.note=fv('f-snote');
+  try{await saveEntity('機微',sens,s,SENS_FIELDS);closeModal();showCandDetail(candId);showToast('保存しました');}
+  catch(e){showToast('保存に失敗しました');console.error(e);}
+}
+
+// ==================== マッチング ====================
+function appLabel(a){
+  var c=byId(cands,a.candidateId),j=byId(jobs,a.jobId),cl=j?byId(clients,j.clientId):null;
+  return {cand:c?c.name:a.candidateId,job:j?j.title:a.jobId,client:cl?cl.company:''};
+}
+function renderBoard(){
+  var active=apps.filter(function(a){return STAGES.indexOf(a.stage)!==-1;});
+  var interviews=active.filter(function(a){return a.interviewAt&&new Date(a.interviewAt)>new Date();}).length;
+  var openJobs=jobs.filter(function(j){return j.status==='募集中';}).length;
+  var expiring=docs.filter(function(d){var n=daysLeft(d.expiry);return n!==null&&n<=30;}).length;
+  document.getElementById('match-kpis').innerHTML=
+    '<div class="kpi"><div class="n">'+active.length+'</div><div class="l">進行中の選考</div></div>'+
+    '<div class="kpi hot"><div class="n">'+interviews+'</div><div class="l">面接予定あり</div></div>'+
+    '<div class="kpi"><div class="n">'+openJobs+'</div><div class="l">募集中の案件</div></div>'+
+    '<div class="kpi'+(expiring?' warm':'')+'"><div class="n">'+expiring+'</div><div class="l">30日以内の書類期限</div></div>';
+  var h='';
+  STAGES.forEach(function(st){
+    var cardsInCol=active.filter(function(a){return a.stage===st;});
+    h+='<div class="col"><h3>'+st+' <span class="cnt">'+cardsInCol.length+'</span></h3>';
+    cardsInCol.forEach(function(a){
+      var L=appLabel(a);
+      var flag='';
+      if(a.interviewAt)flag='<div class="flag"><span class="pill p-acc">'+fmtDT(a.interviewAt)+(a.meetLink?' Meet':'')+'</span></div>';
+      h+='<div class="tcard" onclick="showAppDetail(\''+a.id+'\')"><b>'+escapeHtml(L.cand)+'</b><span class="who">→ '+escapeHtml(L.client)+'／'+escapeHtml(L.job)+'</span><span class="ids">'+escapeHtml(a.id)+' ・ '+escapeHtml(a.candidateId)+' × '+escapeHtml(a.jobId)+'</span>'+flag+'</div>';
+    });
+    h+='</div>';
+  });
+  document.getElementById('board').innerHTML=h;
+  if(currentAppId&&byId(apps,currentAppId))showAppDetail(currentAppId,true);
+}
+function openAppForm(){
+  if(!cands.length||!jobs.length){showToast('先に候補者と案件を登録してください');return;}
+  var candOpts=cands.map(function(c){return c.id+'　'+c.name;});
+  var jobOpts=jobs.map(function(j){var cl=byId(clients,j.clientId);return j.id+'　'+j.title+'（'+(cl?cl.company:'')+'）';});
+  openModal('<h3>提案を登録</h3><div class="fgrid">'+
+    sel('f-cand','候補者',candOpts[0],candOpts,1)+sel('f-job','案件',jobOpts[0],jobOpts,1)+
+    inp('f-proposed','提案日',todayStr(),'date')+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveApp()">登録</button></div>');
+}
+async function saveApp(){
+  var a={id:nextId('APP',apps),candidateId:(fv('f-cand').split('　')[0]||'').trim(),jobId:(fv('f-job').split('　')[0]||'').trim(),stage:'提案',proposedAt:fv('f-proposed')||todayStr(),feeStatus:'未請求',history:'[]'};
+  pushHistory(a,'提案として登録');
+  try{await saveEntity('選考',apps,a,APP_FIELDS);closeModal();currentAppId=a.id;renderBoard();showToast('登録しました');}
+  catch(e){showToast('登録に失敗しました');console.error(e);}
+}
+function showAppDetail(id,keep){
+  currentAppId=id;
+  var a=byId(apps,id);if(!a)return;
+  var L=appLabel(a);
+  var si=STAGES.indexOf(a.stage);
+  var stageBtns='';
+  if(si>=0&&si<STAGES.length-1)stageBtns+='<button class="btn small" onclick="advanceStage(\''+id+'\')">→ '+STAGES[si+1]+' へ進める</button>';
+  if(a.stage!=='見送り')stageBtns+='<button class="btn ghost small" onclick="rejectApp(\''+id+'\')">見送りにする</button>';
+  var interviewRow='';
+  if(a.interviewAt){
+    interviewRow='<div class="kv"><b>面接</b>'+fmtDT(a.interviewAt)+(a.meetLink?' ─ <a href="'+escapeAttr(a.meetLink)+'" target="_blank" rel="noopener">Meetに参加</a>':'')+'</div>';
+  }
+  var hist=getHistory(a).map(function(x){return '<li>'+escapeHtml(x.t)+' '+escapeHtml(x.e)+'</li>';}).reverse().join('');
+  var summary=a.interviewSummary?'<h3 style="margin-top:14px;font-size:.9rem">面接メモ（Gemini要約）</h3><div class="summarybox">'+escapeHtml(a.interviewSummary)+'</div>':'';
+  var geminiBtn=a.calEventId?'<button class="btn ghost small" onclick="fetchGeminiNotes(\''+id+'\',true)">Geminiメモを取り込む</button>':'';
+  var h='<div class="detail"><h3>'+escapeHtml(a.id)+' ─ '+escapeHtml(L.cand)+' × '+escapeHtml(L.job)+'（'+escapeHtml(L.client)+'）</h3>'+
+    '<span class="pill p-acc">'+escapeHtml(a.stage)+'</span> <span class="pill p-mut">手数料: '+escapeHtml(a.feeStatus||'未請求')+'</span>'+
+    '<div class="grid">'+
+    '<div class="kv"><b>提案日</b>'+escapeHtml(a.proposedAt||'─')+'</div>'+interviewRow+
+    (a.offerAt?'<div class="kv"><b>内定日</b>'+escapeHtml(a.offerAt)+'</div>':'')+
+    (a.joinedAt?'<div class="kv"><b>入社日</b>'+escapeHtml(a.joinedAt)+'</div>':'')+
+    '</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+stageBtns+
+    '<button class="btn small" onclick="openInterviewForm(\''+id+'\')">'+(a.calEventId?'面接を再設定':'📅 面接を設定（Meet発行）')+'</button>'+geminiBtn+'</div>'+
+    summary+
+    '<ul class="timeline">'+hist+'</ul></div>';
+  document.getElementById('app-detail').innerHTML=h;
+  if(!keep)document.getElementById('app-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
+  // 面接が過去でGemini要約が未取得なら自動で取り込みを試す
+  if(a.calEventId&&a.interviewAt&&!a.interviewSummary&&new Date(a.interviewAt)<new Date()){fetchGeminiNotes(id,false);}
+}
+async function advanceStage(id){
+  var a=byId(apps,id);var si=STAGES.indexOf(a.stage);
+  if(si<0||si>=STAGES.length-1)return;
+  a.stage=STAGES[si+1];
+  if(a.stage==='内定')a.offerAt=todayStr();
+  if(a.stage==='入社・成約')a.joinedAt=todayStr();
+  pushHistory(a,a.stage+' に進行');
+  var c=byId(cands,a.candidateId);
+  if(c){var map={'提案':'提案中','書類選考':'選考中','面接':'選考中','内定':'内定','入社・成約':'入社'};if(map[a.stage]){c.status=map[a.stage];saveEntity('候補者',cands,c,CAND_FIELDS).catch(function(){});}}
+  try{await saveEntity('選考',apps,a,APP_FIELDS);renderBoard();showToast(a.stage+' に進めました');}
+  catch(e){showToast('更新に失敗しました');console.error(e);}
+}
+async function rejectApp(id){
+  var a=byId(apps,id);a.stage='見送り';pushHistory(a,'見送り');
+  try{await saveEntity('選考',apps,a,APP_FIELDS);currentAppId='';document.getElementById('app-detail').innerHTML='';renderBoard();showToast('見送りにしました');}
+  catch(e){showToast('更新に失敗しました');console.error(e);}
+}
+
+// ==================== 面接: カレンダー + Meet + Gemini ====================
+function openInterviewForm(id){
+  var a=byId(apps,id);var L=appLabel(a);
+  var c=byId(cands,a.candidateId),j=byId(jobs,a.jobId),cl=j?byId(clients,j.clientId):null;
+  var defAttendees=[c&&c.email,cl&&cl.email].filter(Boolean).join(', ');
+  var defStart=a.interviewAt||'';
+  openModal('<h3>面接を設定 ─ '+escapeHtml(L.cand)+' × '+escapeHtml(L.client)+'</h3>'+
+    '<p class="hint">Googleカレンダーに登録し、Meetリンクを自動発行します。GeminiのメモをONにすると、終了後に要約を自動で取り込めます。</p><div class="fgrid">'+
+    inp('f-idt','日時',defStart,'datetime-local')+inp('f-dur','所要（分）',a.calEventId?'60':'60','number')+
+    inp('f-att','参加者メール（カンマ区切り）',defAttendees,'text',1)+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="createInterview(\''+id+'\')">カレンダーに登録</button></div>');
+}
+async function createInterview(id){
+  var a=byId(apps,id);var L=appLabel(a);
+  var start=fv('f-idt');if(!start){showToast('日時を入力してください');return;}
+  var dur=parseInt(fv('f-dur'),10)||60;
+  var startD=new Date(start),endD=new Date(startD.getTime()+dur*60000);
+  var attendees=fv('f-att').split(',').map(function(s){return s.trim();}).filter(Boolean).map(function(e){return {email:e};});
+  var body={
+    summary:'面接: '+L.cand+' × '+L.job+'（'+L.client+'）',
+    description:'Choreia 人財 '+a.id+'\n候補者: '+a.candidateId+' / 案件: '+a.jobId,
+    start:{dateTime:startD.toISOString(),timeZone:'Asia/Tokyo'},
+    end:{dateTime:endD.toISOString(),timeZone:'Asia/Tokyo'},
+    attendees:attendees,
+    conferenceData:{createRequest:{requestId:a.id+'-'+Date.now(),conferenceSolutionKey:{type:'hangoutsMeet'}}}
+  };
+  try{
+    var ev;
+    if(a.calEventId){
+      ev=await apiFetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+a.calEventId+'?conferenceDataVersion=1&sendUpdates=all',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    }else{
+      ev=await apiFetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    }
+    a.calEventId=ev.id;a.meetLink=ev.hangoutLink||((ev.conferenceData&&ev.conferenceData.entryPoints||[]).filter(function(p){return p.entryPointType==='video';}).map(function(p){return p.uri;})[0]||'');
+    a.interviewAt=start;
+    if(a.stage==='提案'||a.stage==='書類選考'){a.stage='面接';}
+    pushHistory(a,'面接を設定 '+fmtDT(start)+(a.meetLink?'（Meet発行）':''));
+    await saveEntity('選考',apps,a,APP_FIELDS);
+    closeModal();renderBoard();showToast('カレンダーに登録しました'+(a.meetLink?'（Meetリンク発行済み）':''));
+  }catch(e){showToast('カレンダー登録に失敗しました: '+e.message);console.error(e);}
+}
+// Gemini「メモを作成」の議事録ドキュメントをカレンダーの添付から探して取り込む
+async function fetchGeminiNotes(id,manual){
+  var a=byId(apps,id);if(!a||!a.calEventId)return;
+  try{
+    var ev=await apiFetch('https://www.googleapis.com/calendar/v3/calendars/primary/events/'+a.calEventId+'?fields=attachments,summary');
+    var atts=ev.attachments||[];
+    var note=null;
+    for(var i=0;i<atts.length;i++){
+      var t=(atts[i].title||'');
+      if(/gemini|メモ|notes/i.test(t)){note=atts[i];break;}
+    }
+    if(!note){
+      // 添付が無い場合、Drive検索（Meet Recordings配下の「メモ」ドキュメント）も試す
+      var q="name contains 'メモ' and mimeType='application/vnd.google-apps.document' and trashed=false and fullText contains '"+(a.id)+"'";
+      try{
+        var d=await apiFetch('https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&corpora=allDrives&includeItemsFromAllDrives=true&supportsAllDrives=true&fields=files(id,name)&pageSize=5');
+        if(d.files&&d.files.length)note={fileId:d.files[0].id,title:d.files[0].name};
+      }catch(e2){}
+    }
+    if(!note){if(manual)showToast('Geminiのメモが見つかりません。会議で「メモを作成」がONだったか確認してください');return;}
+    var fileId=note.fileId||((note.fileUrl||'').match(/[-\w]{25,}/)||[])[0];
+    if(!fileId){if(manual)showToast('メモのファイルを特定できませんでした');return;}
+    var r=await authFetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/export?mimeType=text/plain');
+    if(!r.ok)throw new Error('export '+r.status);
+    var text=await r.text();
+    a.interviewSummary=text.slice(0,20000);
+    pushHistory(a,'Gemini面接メモを取り込み（'+(note.title||'ドキュメント')+'）');
+    await saveEntity('選考',apps,a,APP_FIELDS);
+    showAppDetail(id,true);
+    showToast('Geminiのメモを取り込みました');
+  }catch(e){if(manual){showToast('取り込みに失敗しました: '+e.message);}console.error(e);}
+}
+
+// ==================== 書類・期限 ====================
+function renderDocs(){
+  var rows=docs.slice().sort(function(x,y){return (x.expiry||'9999')<(y.expiry||'9999')?-1:1;});
+  var h='<table><thead><tr><th>期限</th><th>残り</th><th>書類</th><th>対象</th><th>リンク</th></tr></thead><tbody>';
+  rows.forEach(function(d){
+    var n=daysLeft(d.expiry);
+    var pill=n===null?'<span class="pill p-mut">─</span>':n<0?'<span class="pill p-bad">期限切れ</span>':n<=30?'<span class="pill p-bad">'+n+'日</span>':n<=90?'<span class="pill p-warn">'+n+'日</span>':'<span class="pill p-mut">'+n+'日</span>';
+    var target=byId(cands,d.target)||byId(clients,d.target)||byId(apps,d.target);
+    var tname=target?(target.name||target.company||d.target):d.target;
+    h+='<tr onclick="openDocForm(\''+d.id+'\')"><td class="mono">'+escapeHtml(d.expiry||'')+'</td><td>'+pill+'</td><td>'+escapeHtml(d.name)+(d.memo?'<span class="sub">'+escapeHtml(d.memo)+'</span>':'')+'</td><td>'+escapeHtml(d.target)+(tname!==d.target?'<span class="sub">'+escapeHtml(tname)+'</span>':'')+'</td><td>'+(d.url?'<a href="'+escapeAttr(d.url)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">開く</a>':'─')+'</td></tr>';
+  });
+  if(!rows.length)h+='<tr><td colspan="5" style="color:var(--muted)">まだ書類がありません。</td></tr>';
+  document.getElementById('t-docs').innerHTML=h+'</tbody></table>';
+}
+function openDocForm(id){
+  var d=id?byId(docs,id):{};
+  openModal('<h3>'+(id?'書類を編集':'書類を登録')+'</h3><div class="fgrid">'+
+    inp('f-dname','書類名',d.name,'text',1)+
+    inp('f-dtarget','対象ID（CAN-/CL-/APP-）',d.target)+inp('f-dexp','有効期限',d.expiry,'date')+
+    inp('f-durl','DriveリンクURL',d.url,'text',1)+ta('f-dmemo','メモ',d.memo)+
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveDoc(\''+(id||'')+'\')">保存</button></div>');
+}
+async function saveDoc(id){
+  if(!fv('f-dname')){showToast('書類名は必須です');return;}
+  var d=id?Object.assign({},byId(docs,id)):{id:nextId('DOC',docs)};
+  d.name=fv('f-dname');d.target=fv('f-dtarget');d.expiry=fv('f-dexp');d.url=fv('f-durl');d.memo=fv('f-dmemo');
+  try{await saveEntity('書類',docs,d,DOC_FIELDS);closeModal();renderDocs();showToast('保存しました');}
+  catch(e){showToast('保存に失敗しました');console.error(e);}
+}
+</script>
+</body>
+</html>
