@@ -124,7 +124,7 @@ label.f textarea{min-height:64px;resize:vertical}
   <span class="pill p-acc">職業紹介 優先</span>
   <span class="spacer"></span>
   <div id="auth-out"><button class="btn" onclick="handleSignIn()">Googleでログイン</button></div>
-  <div id="user-area" style="display:none"><img id="user-avatar" alt=""><span id="user-name"></span><button class="btn ghost small" onclick="handleSignOut()">ログアウト</button></div>
+  <div id="user-area" style="display:none"><img id="user-avatar" alt=""><span id="user-name"></span><button class="btn ghost small" id="btn-settings" style="display:none" onclick="openSettings()">⚙ 設定</button><button class="btn ghost small" onclick="handleSignOut()">ログアウト</button></div>
 </header>
 
 <!-- welcome -->
@@ -217,7 +217,7 @@ var BLOCKED_DOMAINS=['gmail.com','googlemail.com','yahoo.co.jp','yahoo.com','hot
 
 var CLIENT_FIELDS=['id','company','kana','contact','contactTitle','tel','email','address','needs','status','memo','createdAt','updatedAt'];
 var JOB_FIELDS=['id','clientId','title','type','visa','headcount','location','salary','conditions','status','feeNote','memo','createdAt','updatedAt'];
-var CAND_FIELDS=['id','name','kana','nameEn','partner','birth','nationality','phone','email','jobPref','locationPref','skills','jlpt','exam','visaStage','status','consent','memo','createdAt','updatedAt'];
+var CAND_FIELDS=['id','name','kana','nameEn','partner','birth','nationality','phone','email','jobPref','locationPref','skills','jlpt','exam','visaStage','status','consent','memo','createdAt','updatedAt','photoId'];
 var APP_FIELDS=['id','candidateId','jobId','stage','proposedAt','interviewAt','calEventId','meetLink','interviewSummary','offerAt','joinedAt','feeStatus','history','memo','updatedAt'];
 var DOC_FIELDS=['id','target','name','url','expiry','memo','updatedAt'];
 var SENS_FIELDS=['candidateId','passport','evaluation','note','updatedAt'];
@@ -225,7 +225,7 @@ var SENS_FIELDS=['candidateId','passport','evaluation','note','updatedAt'];
 var SHEET_DEFS=[
   {title:'取引先',fields:CLIENT_FIELDS,headers:['ID','会社名','カナ','担当者','役職','TEL','メール','住所','ニーズ','状況','メモ','登録日','更新日']},
   {title:'案件',fields:JOB_FIELDS,headers:['ID','取引先ID','案件名','区分','在留資格','人数','勤務地','給与','条件','状況','手数料メモ','メモ','登録日','更新日']},
-  {title:'候補者',fields:CAND_FIELDS,headers:['ID','氏名','カナ','氏名(原文)','パートナー','生年月','国籍','電話','メール','希望職種','希望勤務地','スキル・職歴','日本語','技能試験','在留資格進行','状況','応募同意','メモ','登録日','更新日']},
+  {title:'候補者',fields:CAND_FIELDS,headers:['ID','氏名','カナ','氏名(原文)','パートナー','生年月','国籍','電話','メール','希望職種','希望勤務地','スキル・職歴','日本語','技能試験','在留資格進行','状況','応募同意','メモ','登録日','更新日','写真ID']},
   {title:'選考',fields:APP_FIELDS,headers:['ID','候補者ID','案件ID','段階','提案日','面接日時','カレンダーID','Meetリンク','面接要約','内定日','入社日','手数料','履歴','メモ','更新日']},
   {title:'書類',fields:DOC_FIELDS,headers:['ID','対象','書類名','URL','期限','メモ','更新日']},
   {title:'機微',fields:SENS_FIELDS,headers:['候補者ID','パスポート番号','面談評価','機微メモ','更新日']}
@@ -258,6 +258,50 @@ function idxOf(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return i;r
 function pushHistory(app,text){var h=[];try{h=JSON.parse(app.history||'[]');}catch(e){}h.push({t:nowStr(),e:text});app.history=JSON.stringify(h);}
 function getHistory(app){try{return JSON.parse(app.history||'[]');}catch(e){return [];}}
 function canViewSensitive(){if(!orgConfig)return false;var v=orgConfig.sensitiveViewers||orgConfig.admins||[orgConfig.admin];return v.indexOf(currentUser.email)!==-1;}
+function isAdmin(){if(!orgConfig)return false;return (orgConfig.admins||[orgConfig.admin]).indexOf(currentUser.email)!==-1;}
+
+// ==================== 設定（管理者のみ） ====================
+function openSettings(){
+  if(!isAdmin()){showToast('設定は管理者のみ変更できます');return;}
+  var ssUrl='https://docs.google.com/spreadsheets/d/'+getSheetId()+'/edit';
+  openModal('<h3>⚙ 設定</h3>'+
+    '<p class="hint">保存先: <a href="'+escapeAttr(ssUrl)+'" target="_blank" rel="noopener">スプレッドシートを開く</a>（'+escapeHtml(orgConfig.driveName||'')+' / '+escapeHtml(orgConfig.folderName||'')+'）</p>'+
+    '<h3 style="font-size:.9rem;margin-top:12px">管理者 <span class="hint" style="font-weight:400">設定の変更・メンバー管理ができます</span></h3>'+
+    '<div id="role-admins"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px"><input id="add-admin" type="email" placeholder="メールアドレス" style="flex:1;font-family:inherit;font-size:.88rem;padding:6px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);color:var(--ink)"><button class="btn small" onclick="addRole(\'admins\')">追加</button></div>'+
+    '<h3 style="font-size:.9rem;margin-top:16px">🔒 機微情報を見られる人 <span class="hint" style="font-weight:400">パスポート番号・面談評価が表示されます</span></h3>'+
+    '<div id="role-sensitiveViewers"></div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px"><input id="add-sensitiveViewers" type="email" placeholder="メールアドレス" style="flex:1;font-family:inherit;font-size:.88rem;padding:6px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);color:var(--ink)"><button class="btn small" onclick="addRole(\'sensitiveViewers\')">追加</button></div>'+
+    '<div class="actions"><button class="btn" onclick="closeModal()">閉じる</button></div>');
+  renderRoleList('admins');renderRoleList('sensitiveViewers');
+}
+function renderRoleList(key){
+  var owner=orgConfig.admin;
+  var list=orgConfig[key]||(key==='admins'?[owner]:[]);
+  var h='';
+  list.forEach(function(email){
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:.86rem"><span style="flex:1">'+escapeHtml(email)+'</span>';
+    if(key==='admins'&&email===owner)h+='<span class="pill p-acc">オーナー</span>';
+    else h+='<button class="btn ghost small" onclick="removeRole(\''+key+'\',\''+escapeAttr(email)+'\')">外す</button>';
+    h+='</div>';
+  });
+  if(!list.length)h='<p class="hint">まだ誰もいません</p>';
+  var el=document.getElementById('role-'+key);if(el)el.innerHTML=h;
+}
+async function addRole(key){
+  var input=document.getElementById('add-'+key);
+  var email=(input.value||'').trim().toLowerCase();
+  if(!email||email.indexOf('@')===-1){showToast('メールアドレスを入力してください');return;}
+  var list=orgConfig[key]||(key==='admins'?[orgConfig.admin]:[]);
+  if(list.indexOf(email)!==-1){showToast('すでに登録されています');return;}
+  list.push(email);orgConfig[key]=list;input.value='';
+  renderRoleList(key);await saveConfig();showToast(email+' を追加しました');
+}
+async function removeRole(key,email){
+  if(key==='admins'&&email===orgConfig.admin){showToast('オーナーは外せません');return;}
+  orgConfig[key]=(orgConfig[key]||[]).filter(function(x){return x!==email;});
+  renderRoleList(key);await saveConfig();showToast(email+' を外しました');
+}
 
 var _tokenRefreshResolver=null,_pendingTokenRefresh=null;
 function refreshAccessToken(){
@@ -486,7 +530,54 @@ async function saveEntity(sheet,arr,obj,fields){
   else{arr[i]=obj;await updateRowByIndex(sheet,i,obj,fields);}
 }
 
-function showMainView(){showView('main');switchTab(currentTab||'match');}
+function showMainView(){
+  showView('main');
+  var sb=document.getElementById('btn-settings');if(sb)sb.style.display=isAdmin()?'':'none';
+  ensurePhotoHeader();
+  switchTab(currentTab||'match');
+}
+// 旧バージョンで作成したシートに「写真ID」列ヘッダーを補う（初回のみ）
+var _photoHeaderEnsured=false;
+async function ensurePhotoHeader(){
+  if(_photoHeaderEnsured)return;_photoHeaderEnsured=true;
+  try{
+    var col=colLetter(CAND_FIELDS.length);
+    var d=await apiFetch('https://sheets.googleapis.com/v4/spreadsheets/'+getSheetId()+'/values/'+encodeURIComponent('候補者!'+col+'1'));
+    if(!d.values||!d.values[0]||!d.values[0][0]){
+      await apiFetch('https://sheets.googleapis.com/v4/spreadsheets/'+getSheetId()+'/values/'+encodeURIComponent('候補者!'+col+'1')+'?valueInputOption=RAW',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:[['写真ID']]})});
+    }
+  }catch(e){console.error('ensurePhotoHeader',e);}
+}
+
+// ==================== 写真（Drive保存） ====================
+async function getPhotoFolderId(){
+  if(orgConfig.photoFolderId)return orgConfig.photoFolderId;
+  var meta={name:'Choreia人財_写真',mimeType:'application/vnd.google-apps.folder',parents:[orgConfig.folderId]};
+  var f=await apiFetch('https://www.googleapis.com/drive/v3/files?supportsAllDrives=true',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(meta)});
+  orgConfig.photoFolderId=f.id;await saveConfig();
+  return f.id;
+}
+async function uploadPhoto(file,candId){
+  var folderId=await getPhotoFolderId();
+  var meta=JSON.stringify({name:candId+'_'+file.name,parents:[folderId]});
+  var fd=new FormData();
+  fd.append('metadata',new Blob([meta],{type:'application/json'}));
+  fd.append('file',file);
+  var r=await authFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true',{method:'POST',body:fd});
+  if(!r.ok)throw new Error('photo upload failed');
+  var j=await r.json();return j.id;
+}
+var _photoUrlCache={};
+async function photoObjectUrl(fileId){
+  if(_photoUrlCache[fileId])return _photoUrlCache[fileId];
+  var r=await authFetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?alt=media&supportsAllDrives=true');
+  if(!r.ok)throw new Error('photo fetch failed');
+  var b=await r.blob();var u=URL.createObjectURL(b);
+  _photoUrlCache[fileId]=u;return u;
+}
+function loadPhotoInto(imgElId,fileId){
+  photoObjectUrl(fileId).then(function(u){var el=document.getElementById(imgElId);if(el){el.src=u;el.style.display='';}}).catch(function(){});
+}
 
 // ==================== Modal helpers ====================
 function openModal(html){document.getElementById('modal').innerHTML=html;document.getElementById('modal-bg').classList.add('on');}
@@ -584,7 +675,8 @@ function showCandDetail(id){
   var c=byId(cands,id);if(!c)return;
   var s=sensFor(id),canSee=canViewSensitive();
   var lock='<span class="lock">閲覧には権限が必要です</span>';
-  var h='<div class="detail"><h3>'+escapeHtml(c.id)+' ─ '+escapeHtml(c.name)+'</h3>'+visaPill(c.visaStage)+' <span class="pill p-info">'+escapeHtml(c.status||'登録')+'</span>'+
+  var photo=c.photoId?'<img id="cand-photo" alt="顔写真" style="display:none;float:right;width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--line2);margin-left:12px">':'';
+  var h='<div class="detail">'+photo+'<h3>'+escapeHtml(c.id)+' ─ '+escapeHtml(c.name)+'</h3>'+visaPill(c.visaStage)+' <span class="pill p-info">'+escapeHtml(c.status||'登録')+'</span>'+
     '<div class="grid">'+
     '<div class="kv"><b>氏名（原文）</b>'+escapeHtml(c.nameEn||'─')+'</div>'+
     '<div class="kv"><b>カナ</b>'+escapeHtml(c.kana||'─')+'</div>'+
@@ -600,6 +692,7 @@ function showCandDetail(id){
     '<p class="hint" style="margin-top:10px">🔒は機微情報（設定の sensitiveViewers で制御）。マイナンバーはこのシステムでは扱いません。</p>'+
     '<div class="actions" style="display:flex;gap:10px;margin-top:10px"><button class="btn ghost small" onclick="openCandForm(\''+id+'\')">編集</button>'+(canSee?'<button class="btn ghost small" onclick="openSensForm(\''+id+'\')">機微情報を編集</button>':'')+'</div></div>';
   document.getElementById('cand-detail').innerHTML=h;
+  if(c.photoId)loadPhotoInto('cand-photo',c.photoId);
 }
 function openCandForm(id){
   var c=id?byId(cands,id):{};
@@ -612,8 +705,9 @@ function openCandForm(id){
     inp('f-jlpt','日本語（JLPT等）',c.jlpt)+inp('f-exam','技能試験',c.exam)+
     sel('f-visaStage','在留資格の進行',c.visaStage||'未着手',VISA_STAGES)+sel('f-cstatus','状況',c.status||'登録',CAND_STATUSES)+
     sel('f-consent','応募同意',c.consent||'未',['未','取得済'])+
+    '<label class="f">顔写真'+(c.photoId?'（登録済み・選ぶと差し替え）':'')+'<input id="f-photo" type="file" accept="image/*"></label>'+
     ta('f-skills','スキル・職歴',c.skills)+ta('f-memo','メモ（機微情報は書かない）',c.memo)+
-    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" onclick="saveCand(\''+(id||'')+'\')">保存</button></div>');
+    '</div><div class="actions"><button class="btn ghost" onclick="closeModal()">キャンセル</button><button class="btn" id="btn-save-cand" onclick="saveCand(\''+(id||'')+'\')">保存</button></div>');
 }
 async function saveCand(id){
   if(!fv('f-name')){showToast('氏名は必須です');return;}
@@ -623,8 +717,15 @@ async function saveCand(id){
   c.jobPref=fv('f-jobPref');c.locationPref=fv('f-locPref');c.jlpt=fv('f-jlpt');c.exam=fv('f-exam');
   c.visaStage=fv('f-visaStage');c.status=fv('f-cstatus');c.consent=fv('f-consent');
   c.skills=fv('f-skills');c.memo=fv('f-memo');
-  try{await saveEntity('候補者',cands,c,CAND_FIELDS);closeModal();renderCands();if(id)showCandDetail(id);showToast('保存しました');}
-  catch(e){showToast('保存に失敗しました');console.error(e);}
+  var photoInput=document.getElementById('f-photo');
+  try{
+    if(photoInput&&photoInput.files&&photoInput.files[0]){
+      var btn=document.getElementById('btn-save-cand');if(btn){btn.disabled=true;btn.textContent='写真をアップロード中…';}
+      c.photoId=await uploadPhoto(photoInput.files[0],c.id);
+      delete _photoUrlCache[c.photoId];
+    }
+    await saveEntity('候補者',cands,c,CAND_FIELDS);closeModal();renderCands();if(id)showCandDetail(id);showToast('保存しました');
+  }catch(e){showToast('保存に失敗しました');console.error(e);var b2=document.getElementById('btn-save-cand');if(b2){b2.disabled=false;b2.textContent='保存';}}
 }
 function openSensForm(candId){
   var s=sensFor(candId)||{candidateId:candId};
