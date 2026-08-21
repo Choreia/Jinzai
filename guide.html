@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Choreia 人財 使い方ガイド</title>
+<style>
+@page{size:A4;margin:0}
+:root{
+  --paper:#faf8f5;--panel:#f5ece5;--panel2:#f1eae2;--card:#fff;
+  --ink:#2c2418;--sub:#5a5044;--muted:#8a7e6e;
+  --line:#e8e0d8;--line2:#d4cdc2;
+  --accent:#a0522d;--accent-deep:#7a3d22;--accent-soft:#f3e2d6;
+  --ok:#4a7040;--ok-soft:#e6efe2;--warn:#a8842c;--warn-soft:#f5ecd4;
+  --bad:#a04034;--bad-soft:#f5ded9;--info:#3d5a80;--info-soft:#e2e9f2;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--ink);font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;font-size:10.5pt;line-height:1.8}
+.page{width:210mm;min-height:297mm;padding:18mm 20mm;page-break-after:always;position:relative;background:#fff}
+.page:last-child{page-break-after:auto}
+h1{font-size:26pt;font-weight:900;line-height:1.4;margin:0}
+h2{font-size:15pt;font-weight:800;margin:0 0 4mm;padding-bottom:2mm;border-bottom:2.5px solid var(--accent)}
+h3{font-size:11.5pt;font-weight:700;margin:6mm 0 2mm;color:var(--accent-deep)}
+p{margin:2mm 0}
+.eyebrow{font-size:9pt;font-weight:700;letter-spacing:.18em;color:var(--accent)}
+.pagenum{position:absolute;bottom:10mm;right:20mm;font-size:8.5pt;color:var(--muted)}
+.footmark{position:absolute;bottom:10mm;left:20mm;font-size:8.5pt;color:var(--muted)}
+.pill{display:inline-block;font-size:8pt;font-weight:700;border-radius:999px;padding:0 8px;white-space:nowrap;vertical-align:middle}
+.p-acc{background:var(--accent-soft);color:var(--accent-deep)}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-mut{background:var(--panel2);color:var(--muted)}
+.step{display:flex;gap:5mm;margin:4mm 0;align-items:flex-start}
+.stepnum{flex-shrink:0;width:9mm;height:9mm;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:12pt;display:flex;align-items:center;justify-content:center}
+.step .body{flex:1}
+.step b.t{font-size:11pt}
+.step p{margin:1mm 0;color:var(--sub);font-size:10pt}
+.callout{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:0 8px 8px 0;padding:3mm 5mm;margin:4mm 0;font-size:9.5pt}
+.callout.good{background:var(--ok-soft);border-left-color:var(--ok)}
+.callout.bad{background:var(--bad-soft);border-left-color:var(--bad)}
+.callout b{display:block}
+/* ---- 図解パーツ (アプリ画面の再現) ---- */
+.fig{background:var(--paper);border:1px solid var(--line2);border-radius:10px;padding:5mm;margin:3mm 0}
+.figcap{font-size:8.5pt;color:var(--muted);text-align:center;margin-top:2mm}
+.ui-tabs{display:flex;gap:1mm;border-bottom:1.5px solid var(--line);margin-bottom:3mm}
+.ui-tab{font-size:9pt;font-weight:700;color:var(--muted);padding:1.5mm 4mm;border-bottom:2.5px solid transparent}
+.ui-tab.on{color:var(--accent-deep);border-bottom-color:var(--accent)}
+.ui-btn{display:inline-block;background:var(--accent);color:#fff;font-size:8.5pt;font-weight:700;border-radius:7px;padding:1.5mm 4mm}
+.ui-btn.ghost{background:var(--panel);color:var(--accent-deep);border:1px solid var(--line2)}
+.ui-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:3mm 4mm;margin:2mm 0;font-size:9pt}
+.ui-card b{display:block;font-size:9.5pt}
+.ui-card .sub{color:var(--sub);font-size:8pt}
+.ui-card .ids{font-family:ui-monospace,monospace;font-size:7pt;color:var(--muted)}
+.ui-cols{display:flex;gap:2.5mm}
+.ui-col{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:2.5mm;min-height:26mm}
+.ui-col h4{margin:0 0 2mm;font-size:8pt;color:var(--sub)}
+.arrowflow{display:flex;align-items:center;gap:2mm;flex-wrap:wrap;margin:3mm 0}
+.af-box{background:#fff;border:1.5px solid var(--line2);border-radius:8px;padding:2mm 4mm;font-size:9.5pt;font-weight:700;text-align:center}
+.af-box small{display:block;font-weight:400;font-size:7.5pt;color:var(--muted)}
+.af-box.hi{border-color:var(--accent);background:var(--accent-soft)}
+.af-arrow{color:var(--muted);font-size:11pt}
+table.plain{border-collapse:collapse;width:100%;font-size:9.5pt;margin:3mm 0}
+table.plain th,table.plain td{border:1px solid var(--line2);padding:2mm 3mm;text-align:left;vertical-align:top}
+table.plain th{background:var(--panel);font-size:8.5pt}
+.qa{margin:3mm 0}
+.qa .q{font-weight:700;color:var(--accent-deep)}
+.qa .a{color:var(--sub);margin:1mm 0 0 5mm}
+.url{font-family:ui-monospace,monospace;font-size:10pt;background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:1mm 3mm}
+</style>
+</head>
+<body>
+
+<!-- ============ 表紙 ============ -->
+<div class="page" style="display:flex;flex-direction:column;justify-content:center">
+  <div class="eyebrow">M2LABO 人財部</div>
+  <h1>Choreia 人財<br>使い方ガイド</h1>
+  <p style="font-size:12pt;color:var(--sub);margin-top:6mm">職業紹介・人材派遣の「取引先・案件・候補者・選考」を<br>ひとつの画面で管理するシステムです。</p>
+  <p style="margin-top:10mm;font-size:11pt">アクセスはこちら：</p>
+  <p><span class="url">https://choreia.github.io/Jinzai/</span></p>
+  <p style="color:var(--muted);font-size:9.5pt;margin-top:2mm">スマホでも開けますが、登録作業はパソコンがおすすめです。<br>ブラウザはGoogle Chromeを推奨します。</p>
+  <div style="margin-top:14mm;background:var(--panel);border-radius:10px;padding:5mm 7mm;font-size:9.5pt">
+    <b>このガイドでわかること</b><br>
+    1. ログインのしかた ／ 2. 画面の見方 ／ 3. 登録の基本の流れ<br>
+    4. 選考（マッチング）の進め方 ／ 5. 面接の設定（カレンダー・Meet・Geminiメモ）<br>
+    6. 書類・期限の管理 ／ 7. 気をつけること ／ 8. 困ったとき
+  </div>
+  <div class="footmark">2026年8月版</div>
+</div>
+
+<!-- ============ P2 ログイン ============ -->
+<div class="page">
+  <h2>1. ログインのしかた</h2>
+  <div class="step"><div class="stepnum">1</div><div class="body">
+    <b class="t">ブラウザで開く</b>
+    <p><span class="url">https://choreia.github.io/Jinzai/</span> を開きます。よく使う場合はブックマークしておきましょう。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body">
+    <b class="t">「Googleでログイン」を押す</b>
+    <p>会社のGoogleアカウント（〜@m2-labo.jp）を選びます。個人のGmailではログインできません。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">3</div><div class="body">
+    <b class="t">許可画面で「許可」を押す</b>
+    <p>初回だけ「スプレッドシート」「ドライブ」「カレンダー」へのアクセス許可を聞かれます。データを自社のスプレッドシートに保存し、面接をカレンダーに登録するために必要な許可です。すべてチェックして許可してください。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">4</div><div class="body">
+    <b class="t">メイン画面が出たら完了</b>
+    <p>上部に自分の名前が表示され、5つのタブが並んだ画面になれば準備OKです。</p>
+  </div></div>
+  <div class="fig">
+    <div class="ui-tabs"><span class="ui-tab on">マッチング</span><span class="ui-tab">取引先</span><span class="ui-tab">案件</span><span class="ui-tab">候補者</span><span class="ui-tab">書類・期限</span></div>
+    <div class="figcap">ログイン後の画面上部。この5つのタブを切り替えて使います。</div>
+  </div>
+  <h3>それぞれのタブの役割</h3>
+  <table class="plain">
+    <tr><th style="width:26mm">タブ</th><th>何を管理する場所か</th></tr>
+    <tr><td><b>マッチング</b></td><td>「どの候補者を、どの会社に、いま提案しているか」。日々いちばん見る画面。</td></tr>
+    <tr><td><b>取引先</b></td><td>受け入れ企業（お客様）の情報とヒアリング内容。</td></tr>
+    <tr><td><b>案件</b></td><td>「◯◯社がトマト栽培で2名ほしい」といった求人の内容。</td></tr>
+    <tr><td><b>候補者</b></td><td>紹介する人材の情報（資格・日本語レベル・在留資格の進み具合）。</td></tr>
+    <tr><td><b>書類・期限</b></td><td>契約書やパスポートなどの書類の場所と、期限が近いものの一覧。</td></tr>
+  </table>
+  <div class="callout good"><b>データはどこに保存される？</b>入力した内容はすべて社内のGoogleスプレッドシート「Choreia 人財」に自動保存されます。エクセル感覚で中身を直接見ることもできます。</div>
+  <div class="pagenum">2</div>
+</div>
+
+<!-- ============ P3 基本の流れ ============ -->
+<div class="page">
+  <h2>2. 登録の基本の流れ</h2>
+  <p>最初に「入れ物」を3つ作ってから、マッチング（提案）を登録します。この順番だけ覚えれば大丈夫です。</p>
+  <div class="arrowflow">
+    <div class="af-box">① 取引先<small>会社を登録</small></div><span class="af-arrow">→</span>
+    <div class="af-box">② 案件<small>求人内容を登録</small></div><span class="af-arrow">→</span>
+    <div class="af-box">③ 候補者<small>人材を登録</small></div><span class="af-arrow">→</span>
+    <div class="af-box hi">④ 提案を登録<small>候補者 × 案件</small></div>
+  </div>
+
+  <h3>① 取引先を登録する</h3>
+  <div class="step"><div class="stepnum">1</div><div class="body"><p>「取引先」タブ →「＋ 取引先を登録」ボタンを押す。</p></div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body"><p>会社名（必須）、担当者、連絡先を入力。<b>「ニーズ・ヒアリング記録」欄</b>には訪問や電話で聞いた内容をそのままメモしてください（例：「11月から通年2名ほしい。寮あり。外国人材の受け入れ経験あり」）。</p></div></div>
+  <div class="step"><div class="stepnum">3</div><div class="body"><p>「保存」を押すと <b>CL-00001</b> のような番号が自動で付きます。番号は変更・再利用しません。</p></div></div>
+
+  <h3>② 案件を登録する</h3>
+  <div class="step"><div class="stepnum">1</div><div class="body"><p>「案件」タブ →「＋ 案件を登録」。取引先をプルダウンから選び、案件名・人数・勤務地・給与を入力。</p></div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body"><p><b>区分</b>は「紹介」を選択（派遣はまだ使いません）。<b>在留資格</b>は農業の特定技能なら「SSW農業」を選びます。</p></div></div>
+
+  <h3>③ 候補者を登録する</h3>
+  <div class="step"><div class="stepnum">1</div><div class="body"><p>「候補者」タブ →「＋ 候補者を登録」。氏名は日本語表記（例：ラフル・シャルマ）と原文（パスポート表記）の両方を入れます。</p></div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body"><p>日本語レベル（JLPT N4など）、技能試験、<b>在留資格の進行</b>（未着手／COE準備中…）、<b>応募同意</b>（本人の同意を取ったか）を選びます。</p></div></div>
+  <div class="callout"><b>応募同意はだいじです。</b>本人の同意を取ってから企業に提案するのがルールです。「取得済」にしてから提案に進んでください。</div>
+
+  <div class="pagenum">3</div>
+</div>
+
+<!-- ============ P4 マッチング ============ -->
+<div class="page">
+  <h2>3. 選考（マッチング）の進め方</h2>
+  <h3>④ 提案を登録する（マッチング開始）</h3>
+  <div class="step"><div class="stepnum">1</div><div class="body"><p>「マッチング」タブ →「＋ 提案を登録」。候補者と案件をプルダウンで選ぶだけです。</p></div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body"><p>登録すると「提案」列にカードが現れます。1人を複数の会社に提案してもOK（提案の数だけカードを作ります）。</p></div></div>
+  <p style="margin-top:5mm">選考の状況はカードで管理します。左から右へ、進んだら「進める」ボタンを押すだけです。</p>
+  <div class="fig">
+    <div class="ui-cols">
+      <div class="ui-col"><h4>提案 1</h4><div class="ui-card"><b>Priya Patel</b><span class="sub">→ ㈱あさひファーム</span><span class="ids">APP-00002</span></div></div>
+      <div class="ui-col"><h4>書類選考 1</h4><div class="ui-card"><b>Arjun Verma</b><span class="sub">→ サンライズ農園</span><span class="ids">APP-00003</span></div></div>
+      <div class="ui-col"><h4>面接 1</h4><div class="ui-card"><b>Rahul Sharma</b><span class="sub">→ ㈱あさひファーム</span><span class="pill p-acc">8/28 Meet</span></div></div>
+      <div class="ui-col"><h4>内定 0</h4></div>
+      <div class="ui-col"><h4>入社・成約 0</h4></div>
+    </div>
+    <div class="figcap">マッチング画面。カードは「提案 → 書類選考 → 面接 → 内定 → 入社・成約」と進みます。</div>
+  </div>
+  <div class="step"><div class="stepnum">1</div><div class="body">
+    <b class="t">カードを押して詳細を開く</b>
+    <p>これまでの経過（いつ提案した、いつ面接した）が時系列で表示されます。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body">
+    <b class="t">進んだら「→ ◯◯へ進める」を押す</b>
+    <p>例えば書類選考を通過したら「→ 面接へ進める」。履歴が自動で記録され、候補者の状況欄も自動で変わります。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">3</div><div class="body">
+    <b class="t">不成立になったら「見送りにする」</b>
+    <p>カードは板から外れますが、記録は残ります。削除ではないので安心してください。</p>
+  </div></div>
+  <div class="callout good"><b>迷ったらここだけ。</b>毎朝「マッチング」タブを開き、上の4つの数字（進行中の選考／面接予定／募集中の案件／書類期限）を見る習慣にすると、やることが見えます。</div>
+  <div class="pagenum">4</div>
+</div>
+
+<!-- ============ P5 面接 ============ -->
+<div class="page">
+  <h2>4. 面接の設定（カレンダー・Meet・Geminiメモ）</h2>
+  <p>面接の日程調整・オンライン会議・議事メモは、ぜんぶこのシステムから自動でできます。</p>
+  <div class="step"><div class="stepnum">1</div><div class="body">
+    <b class="t">カードの詳細で「📅 面接を設定」を押す</b>
+    <p>日時、所要時間、参加者のメールアドレス（候補者・企業担当者）を入力します。登録済みのメールは自動で入ります。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body">
+    <b class="t">「カレンダーに登録」を押す</b>
+    <p>自動で3つのことが起こります：<br>① あなたのGoogleカレンダーに予定が入る<br>② <b>Google Meetのリンクが自動発行</b>される<br>③ 参加者全員に招待メールが届く</p>
+  </div></div>
+  <div class="step"><div class="stepnum">3</div><div class="body">
+    <b class="t">面接当日：Meetに入ったら「メモを作成」をON</b>
+    <p>Meet画面右上のペン型アイコン（Geminiでメモを作成）を押します。これを押しておくと、AIが会議の内容を自動でメモしてくれます。</p>
+  </div></div>
+  <div class="step"><div class="stepnum">4</div><div class="body">
+    <b class="t">面接後：カードを開くだけ</b>
+    <p>面接が終わったあとにカードの詳細を開くと、<b>Geminiのメモが自動で取り込まれ</b>「面接メモ（Gemini要約）」として表示されます。取り込まれていないときは「Geminiメモを取り込む」ボタンを押してください。</p>
+  </div></div>
+  <div class="fig">
+    <div style="display:flex;gap:2mm;flex-wrap:wrap"><span class="ui-btn">→ 内定 へ進める</span><span class="ui-btn ghost">見送りにする</span><span class="ui-btn">📅 面接を設定（Meet発行）</span><span class="ui-btn ghost">Geminiメモを取り込む</span></div>
+    <div class="figcap">カード詳細のボタン。面接まわりはこの2つのボタンだけで完結します。</div>
+  </div>
+  <div class="callout"><b>メモが取り込まれないときは？</b>会議中に「メモを作成」を押し忘れるとメモは作られません。その場合は普通にメモ欄に手入力してください。また、この機能は会社のGoogleアカウントでGemini機能が有効になっている必要があります。</div>
+  <div class="pagenum">5</div>
+</div>
+
+<!-- ============ P6 書類・機微情報 ============ -->
+<div class="page">
+  <h2>5. 書類・期限の管理</h2>
+  <div class="step"><div class="stepnum">1</div><div class="body"><p>契約書やパスポートの写しなどはGoogleドライブに保存し、「書類・期限」タブでそのリンクと有効期限を登録します。</p></div></div>
+  <div class="step"><div class="stepnum">2</div><div class="body"><p>期限が近い順に並び、残り日数が色で出ます：<span class="pill p-bad">30日以内</span> <span class="pill p-warn">90日以内</span> <span class="pill p-mut">それ以降</span>。週に1回はこのタブを確認してください。</p></div></div>
+  <p style="margin-top:3mm">登録しておくと良いもの：候補者の応募同意書、JLPT・技能試験の合格証、パスポートの有効期限、COE関係書類、企業との契約書。</p>
+
+  <h2 style="margin-top:10mm">6. 気をつけること（3つだけ）</h2>
+  <div class="callout bad"><b>① マイナンバーは絶対に入力しない。</b>このシステムはマイナンバーを扱わない設計です。入力欄もありません。メモ欄にも書かないでください。</div>
+  <div class="callout"><b>② パスポート番号・面談評価は「機微情報」。</b>権限のある人にしか表示されません（🔒マークで隠れます）。候補者のふつうのメモ欄には書かず、詳細画面の「機微情報を編集」から入力してください。</div>
+  <div class="callout good"><b>③ 迷ったら消さずに「見送り」「保留」。</b>記録が残っていることが、あとで自分を助けます。削除が必要なときは安河内までご相談ください。</div>
+  <div class="pagenum">6</div>
+</div>
+
+<!-- ============ P7 Q&A ============ -->
+<div class="page">
+  <h2>7. 困ったときは</h2>
+  <div class="qa"><div class="q">Q. ログインできない／「組織アカウントで」と言われる</div><div class="a">個人のGmailでログインしようとしています。会社のアカウント（〜@m2-labo.jp）を選び直してください。ブラウザに複数アカウントがあると間違えやすいです。</div></div>
+  <div class="qa"><div class="q">Q. 「保存に失敗しました」と出た</div><div class="a">通信が一時的に切れた可能性があります。ページを再読み込み（F5）して、もう一度保存してください。ログインが切れていたら再ログインを求められます。</div></div>
+  <div class="qa"><div class="q">Q. 間違えて登録してしまった</div><div class="a">その行を開いて上書き修正すればOKです。まるごと消したい場合は安河内に連絡してください。</div></div>
+  <div class="qa"><div class="q">Q. 入力したデータを一覧（エクセル的に）見たい</div><div class="a">共有ドライブ内のスプレッドシート「Choreia 人財 - m2-labo.jp」を直接開けます。並べ替えや印刷はそちらが便利です。<b>ただし列の追加・削除・並べ替えはしないでください</b>（画面が読めなくなります）。セルの値を直すのは大丈夫です。</div></div>
+  <div class="qa"><div class="q">Q. 面接の日程が変わった</div><div class="a">カードの「面接を再設定」から日時を入れ直すと、カレンダーの予定が更新され、参加者に変更通知が飛びます。</div></div>
+  <div class="qa"><div class="q">Q. スマホで見られる？</div><div class="a">見られます。外出先での確認はスマホ、登録作業はパソコンという使い分けがおすすめです。</div></div>
+  <div class="qa"><div class="q">Q. 要望・不具合はどこへ？</div><div class="a">安河内まで。画面の項目追加や文言変更はすぐ直せますので、遠慮なくどうぞ。</div></div>
+
+  <div style="margin-top:12mm;background:var(--panel);border-radius:10px;padding:5mm 7mm">
+    <b>最初の1週間はこれだけでOK</b>
+    <p style="font-size:9.5pt;margin-top:2mm">1. いま持っている取引先と候補者の情報を登録する（完璧じゃなくてよい）<br>2. 提案するたびに「＋ 提案を登録」する<br>3. 毎朝マッチングタブを開く</p>
+  </div>
+  <div class="footmark">Choreia 人財 使い方ガイド ─ M2Labo 人財部</div>
+  <div class="pagenum">7</div>
+</div>
+
+</body>
+</html>
