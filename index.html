@@ -271,7 +271,7 @@ function openSettings(){
     '<p class="hint">保存先: <a href="'+escapeAttr(ssUrl)+'" target="_blank" rel="noopener">スプレッドシートを開く</a>（'+escapeHtml(orgConfig.driveName||'')+' / '+escapeHtml(orgConfig.folderName||'')+'）</p>'+
     '<h3 style="font-size:.9rem;margin-top:12px">管理者 <span class="hint" style="font-weight:400">設定の変更・メンバー管理ができます</span></h3>'+
     '<div id="role-admins"></div>'+
-    '<div style="display:flex;gap:8px;margin-top:6px"><input id="add-admin" type="email" placeholder="メールアドレス" style="flex:1;font-family:inherit;font-size:.88rem;padding:6px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);color:var(--ink)"><button class="btn small" onclick="addRole(\'admins\')">追加</button></div>'+
+    '<div style="display:flex;gap:8px;margin-top:6px"><input id="add-admins" type="email" placeholder="メールアドレス" style="flex:1;font-family:inherit;font-size:.88rem;padding:6px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);color:var(--ink)"><button class="btn small" onclick="addRole(\'admins\')">追加</button></div>'+
     '<h3 style="font-size:.9rem;margin-top:16px">🔒 機微情報を見られる人 <span class="hint" style="font-weight:400">パスポート番号・面談評価が表示されます</span></h3>'+
     '<div id="role-sensitiveViewers"></div>'+
     '<div style="display:flex;gap:8px;margin-top:6px"><input id="add-sensitiveViewers" type="email" placeholder="メールアドレス" style="flex:1;font-family:inherit;font-size:.88rem;padding:6px 10px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);color:var(--ink)"><button class="btn small" onclick="addRole(\'sensitiveViewers\')">追加</button></div>'+
