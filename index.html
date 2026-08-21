@@ -625,6 +625,8 @@ async function saveClient(id){
 // ==================== 案件 ====================
 function jobStatusPill(s){var m={'募集中':'p-ok','提案中':'p-acc','充足':'p-info','保留':'p-mut','終了':'p-mut'};return '<span class="pill '+(m[s]||'p-mut')+'">'+escapeHtml(s||'─')+'</span>';}
 var jobsStatusFilter='';
+var boardFilter='';
+function setBoardFilter(f){boardFilter=(boardFilter===f)?'':f;renderBoard();}
 function goJobsFiltered(status){jobsStatusFilter=status;switchTab('jobs');}
 function clearJobsFilter(){jobsStatusFilter='';renderJobs();}
 function renderJobs(){
@@ -763,13 +765,15 @@ function renderBoard(){
   var openJobs=jobs.filter(function(j){return j.status==='募集中';}).length;
   var expiring=docs.filter(function(d){var n=daysLeft(d.expiry);return n!==null&&n<=30;}).length;
   document.getElementById('match-kpis').innerHTML=
-    '<div class="kpi"><div class="n">'+active.length+'</div><div class="l">進行中の選考</div></div>'+
-    '<div class="kpi hot"><div class="n">'+interviews+'</div><div class="l">面接予定あり</div></div>'+
+    '<div class="kpi click" role="button" tabindex="0" onclick="setBoardFilter(\'\')" onkeydown="if(event.key===\'Enter\')setBoardFilter(\'\')"><div class="n">'+active.length+'</div><div class="l">進行中の選考'+(boardFilter?' →':'')+'</div></div>'+
+    '<div class="kpi hot click" role="button" tabindex="0" onclick="setBoardFilter(\'interview\')" onkeydown="if(event.key===\'Enter\')setBoardFilter(\'interview\')"><div class="n">'+interviews+'</div><div class="l">面接予定あり'+(boardFilter==='interview'?'（絞り込み中 ✕）':' →')+'</div></div>'+
     '<div class="kpi click" role="button" tabindex="0" onclick="goJobsFiltered(\'募集中\')" onkeydown="if(event.key===\'Enter\')goJobsFiltered(\'募集中\')"><div class="n">'+openJobs+'</div><div class="l">募集中の案件 →</div></div>'+
     '<div class="kpi click'+(expiring?' warm':'')+'" role="button" tabindex="0" onclick="switchTab(\'docs\')" onkeydown="if(event.key===\'Enter\')switchTab(\'docs\')"><div class="n">'+expiring+'</div><div class="l">30日以内の書類期限 →</div></div>';
+  var shown=active;
+  if(boardFilter==='interview')shown=active.filter(function(a){return a.interviewAt&&new Date(a.interviewAt)>new Date();});
   var h='';
   STAGES.forEach(function(st){
-    var cardsInCol=active.filter(function(a){return a.stage===st;});
+    var cardsInCol=shown.filter(function(a){return a.stage===st;});
     h+='<div class="col"><h3>'+st+' <span class="cnt">'+cardsInCol.length+'</span></h3>';
     cardsInCol.forEach(function(a){
       var L=appLabel(a);
