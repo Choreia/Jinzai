@@ -42,6 +42,9 @@ h2{font-family:"Zen Kaku Gothic New",sans-serif;font-size:1.1rem;font-weight:700
 .kpi .l{font-size:.76rem;color:var(--muted)}
 .kpi.warm .n{color:var(--warn)}
 .kpi.hot .n{color:var(--accent)}
+.kpi.click{cursor:pointer}
+.kpi.click:hover{border-color:var(--accent)}
+.filter-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent-deep);font-size:.78rem;font-weight:700;border-radius:999px;padding:2px 12px;cursor:pointer}
 .pill{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 10px;white-space:nowrap}
 .p-acc{background:var(--accent-soft);color:var(--accent-deep)}
 .p-ok{background:var(--ok-soft);color:var(--ok)}
@@ -181,7 +184,7 @@ label.f textarea{min-height:64px;resize:vertical}
   <section class="view" id="v-jobs">
     <h2>案件</h2>
     <p class="viewdesc">求人・派遣案件。紹介／派遣の区分と在留資格の適合性を確認してから提案します。</p>
-    <div class="bar"><input type="search" id="q-jobs" placeholder="案件名・取引先で検索" oninput="renderJobs()"><button class="btn" onclick="openJobForm()">＋ 案件を登録</button></div>
+    <div class="bar"><input type="search" id="q-jobs" placeholder="案件名・取引先で検索" oninput="renderJobs()"><span id="jobs-filter-chip"></span><button class="btn" onclick="openJobForm()">＋ 案件を登録</button></div>
     <div class="tbox" id="t-jobs"></div>
   </section>
   <section class="view" id="v-cands">
@@ -621,9 +624,17 @@ async function saveClient(id){
 
 // ==================== 案件 ====================
 function jobStatusPill(s){var m={'募集中':'p-ok','提案中':'p-acc','充足':'p-info','保留':'p-mut','終了':'p-mut'};return '<span class="pill '+(m[s]||'p-mut')+'">'+escapeHtml(s||'─')+'</span>';}
+var jobsStatusFilter='';
+function goJobsFiltered(status){jobsStatusFilter=status;switchTab('jobs');}
+function clearJobsFilter(){jobsStatusFilter='';renderJobs();}
 function renderJobs(){
   var q=(fv('q-jobs')||'').toLowerCase();
-  var rows=jobs.filter(function(j){var c=byId(clients,j.clientId);return !q||((j.title||'')+(c?c.company:'')).toLowerCase().indexOf(q)!==-1;});
+  var chip=document.getElementById('jobs-filter-chip');
+  if(chip)chip.innerHTML=jobsStatusFilter?'<span class="filter-chip" role="button" tabindex="0" onclick="clearJobsFilter()" onkeydown="if(event.key===\'Enter\')clearJobsFilter()">絞り込み: '+escapeHtml(jobsStatusFilter)+' ✕</span>':'';
+  var rows=jobs.filter(function(j){
+    if(jobsStatusFilter&&j.status!==jobsStatusFilter)return false;
+    var c=byId(clients,j.clientId);return !q||((j.title||'')+(c?c.company:'')).toLowerCase().indexOf(q)!==-1;
+  });
   var h='<table><thead><tr><th>ID</th><th>案件</th><th>区分</th><th>在留資格</th><th>人数</th><th>状況</th><th>提案中</th></tr></thead><tbody>';
   rows.forEach(function(j){
     var c=byId(clients,j.clientId);
@@ -754,8 +765,8 @@ function renderBoard(){
   document.getElementById('match-kpis').innerHTML=
     '<div class="kpi"><div class="n">'+active.length+'</div><div class="l">進行中の選考</div></div>'+
     '<div class="kpi hot"><div class="n">'+interviews+'</div><div class="l">面接予定あり</div></div>'+
-    '<div class="kpi"><div class="n">'+openJobs+'</div><div class="l">募集中の案件</div></div>'+
-    '<div class="kpi'+(expiring?' warm':'')+'"><div class="n">'+expiring+'</div><div class="l">30日以内の書類期限</div></div>';
+    '<div class="kpi click" role="button" tabindex="0" onclick="goJobsFiltered(\'募集中\')" onkeydown="if(event.key===\'Enter\')goJobsFiltered(\'募集中\')"><div class="n">'+openJobs+'</div><div class="l">募集中の案件 →</div></div>'+
+    '<div class="kpi click'+(expiring?' warm':'')+'" role="button" tabindex="0" onclick="switchTab(\'docs\')" onkeydown="if(event.key===\'Enter\')switchTab(\'docs\')"><div class="n">'+expiring+'</div><div class="l">30日以内の書類期限 →</div></div>';
   var h='';
   STAGES.forEach(function(st){
     var cardsInCol=active.filter(function(a){return a.stage===st;});
@@ -811,11 +822,21 @@ function showAppDetail(id,keep){
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">'+stageBtns+
     '<button class="btn small" onclick="openInterviewForm(\''+id+'\')">'+(a.calEventId?'面接を再設定':'📅 面接を設定（Meet発行）')+'</button>'+geminiBtn+'</div>'+
     summary+
+    '<div style="display:flex;gap:8px;margin-top:14px"><input id="app-note" type="text" placeholder="メモを追加（例: 先方に電話、来週返事）" style="flex:1;font-family:inherit;font-size:.88rem;padding:7px 12px;border:1px solid var(--line2);border-radius:9px;background:var(--paper);color:var(--ink)" onkeydown="if(event.key===\'Enter\')addAppNote(\''+id+'\')"><button class="btn small" onclick="addAppNote(\''+id+'\')">追加</button></div>'+
     '<ul class="timeline">'+hist+'</ul></div>';
   document.getElementById('app-detail').innerHTML=h;
   if(!keep)document.getElementById('app-detail').scrollIntoView({behavior:'smooth',block:'nearest'});
   // 面接が過去でGemini要約が未取得なら自動で取り込みを試す
   if(a.calEventId&&a.interviewAt&&!a.interviewSummary&&new Date(a.interviewAt)<new Date()){fetchGeminiNotes(id,false);}
+}
+async function addAppNote(id){
+  var el=document.getElementById('app-note');
+  var text=(el&&el.value||'').trim();
+  if(!text){showToast('メモを入力してください');return;}
+  var a=byId(apps,id);if(!a)return;
+  pushHistory(a,'📝 '+text);
+  try{await saveEntity('選考',apps,a,APP_FIELDS);showAppDetail(id,true);showToast('メモを追加しました');}
+  catch(e){showToast('保存に失敗しました');console.error(e);}
 }
 async function advanceStage(id){
   var a=byId(apps,id);var si=STAGES.indexOf(a.stage);
